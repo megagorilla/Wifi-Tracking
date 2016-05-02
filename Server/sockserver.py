@@ -19,6 +19,11 @@ class SocketServer(threading.Thread):
 		self.running = True
 		self.pubkeyStr = pubkey
 		self.privateKey = privkey
+		self.whitelist = []
+		self.whitelist.append("91abea155fdf14c519923f0c512814e373d997c037aea13c64f89c450796c95d0744ad27ca1e13531fb975847fc03ef9a0bae26b64d43c2218508ba4ab63fe62")
+		
+	def addWhitelist(self,MacHash):
+		self.whitelist.append(MacHash)
 		
 	def stop(self):
 		self.running = False
@@ -54,6 +59,17 @@ class SocketServer(threading.Thread):
 				else:
 					print "data[1] = " + data[1] + "\nself.CONN_NAMES[index]= " + self.CONN_NAMES[index]
 					raise ValueError("Could nog read public key from data")
+				print self.CONN_PUBKEYS
+				
+			counter = 1
+			for mac in self.whitelist:
+				tosend = mac
+				if len(self.whitelist) == counter:
+					tosend += ";LAST"
+				counter +=1
+				print tosend
+				conn.send(tosend)
+				
 			#infinite loop so that function do not terminate and thread do not end.
 			while self.running:
 			
@@ -86,6 +102,7 @@ class SocketServer(threading.Thread):
 			self.CONN_NAMES.pop(index)
 			self.ADDRESS_LIST.pop(index)
 			self.CONNECTION_LIST.pop(index)
+			self.CONN_PUBKEYS.pop(index)
 			conn.close()
 		
 	def broadcast(self,string):

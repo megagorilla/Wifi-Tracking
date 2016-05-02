@@ -18,6 +18,9 @@ class Decrypter(object):
 	def serverRunning(self):
 		return self.server.isRunning()
 		
+	def def addWhitelist(self,MacHash):
+		self.server.addWhitelist(MacHash)
+		
 	def broadcast(self,msg):
 		self.server.broadcast(msg)
 		
