@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+ 
+<html>
+<head>
+<link rel="shortcut icon" href="/favicon.ico">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+<script>
+function paintDevice(trackeddevice) {
+	ctx.fillStyle = "#FF0000";
+	ctx.beginPath();
+	ctx.arc(trackeddevice.locationx*10,trackeddevice.locationy*10,2,0,2*Math.PI);
+	ctx.stroke();
+	ctx.fillStyle = "#FF0000";
+	ctx.font = "20px Arial";
+	ctx.fillText(trackeddevice.name, trackeddevice.locationx*10, trackeddevice.locationy*10);
+}
+function paint(json){
+	var obj = JSON.parse(json);
+	objLength = obj.length;
+	var canvas = document.getElementById("myCanvas");
+	ctx = canvas.getContext("2d");
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	for (i = 0; i < objLength; i++) {
+		paintDevice(obj[i]);
+	}
+}
+setInterval(function(){ 
+   $.get('update.php', function(data) {paint(data)});
+}, 500);
+</script>
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+<canvas id="myCanvas" width="500" height="300">
+Your browser does not support the canvas element.
+</canvas>
+</body>
+</html>

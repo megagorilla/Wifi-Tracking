@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<title>Wifi Tracking</title>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+		<link rel="stylesheet" href="css/style.css" type="text/css" />
+		<script>
+		function setFrame(url){
+			document.getElementById('bodyframe').src = url;
+		}
+		function changeSelected(name){
+			document.getElementById("Home").style.color= "#5e5e5e";
+			document.getElementById("Tracking").style.color= "#5e5e5e";
+			document.getElementById("Enroll").style.color = "#5e5e5e";
+			document.getElementById("Licence").style.color = "#5e5e5e";
+			document.getElementById(name).style.color = "#f78117";
+		}
+		function resizeIframe() {
+			document.getElementById("bodyframe").style.height = "";
+			document.getElementById("bodyframe").style.height = document.getElementById("bodyframe").contentWindow.document.body.scrollHeight + 'px';
+		}
+		function updatePage(pageName){
+			setFrame('/'+pageName);
+			changeSelected(pageName);
+			resizeIframe();
+		}
+		</script>
+	</head>
+	<body>
+		<div class="page">
+			<div class="header">
+				<a href="index.html" id="logo"><img src="images/logo.png" width="450px" alt=""/></a>
+				<ul>
+					<li><a style="color: #f78117" id="Home" onClick="updatePage('Home')">Home</a></li>
+					<li><a id="Tracking" onClick="updatePage('Tracking')">Tracking</a></li>
+					<li><a id="Enroll" onClick="updatePage('Enroll')">Enroll</a></li>
+					<li><a id="Licence" onClick="updatePage('Licence')">Licence</a></li>
+				</ul>
+			</div>
+			<div class="body">
+				<iframe id="bodyframe" src="" width="100%" frameborder="0" scrolling="no" onload="resizeIframe()"></iframe>
+			</div>
+			<div class="footer">
+				<p>&#169; Copyright &#169; 2016. Wifi Tracking all rights reserved</p>
+				<div class="connect">
+					<a href="http://www.youtube.com/fwtemplates" id="vimeo">vimeo</a>
+				</div>
+			</div>
+		</div>
+
+		<script>
+		$( "#Home" ).hover(function(){
+			document.getElementById('Home').style.color = "#f78117";
+		}, function(){
+			document.getElementById('Home').style.color = "#5e5e5e";
+		});
+		$( "#Tracking" ).hover(function(){
+			document.getElementById('Tracking').style.color = "#f78117";
+		}, function(){
+			document.getElementById('Tracking').style.color = "#5e5e5e";
+		});
+		$( "#Enroll" ).hover(function(){
+			document.getElementById('Enroll').style.color = "#f78117";
+		}, function(){
+			document.getElementById('Enroll').style.color = "#5e5e5e";
+		});
+		$( "#Licence" ).hover(function(){
+			document.getElementById('Licence').style.color = "#f78117";
+		}, function(){
+			document.getElementById('Licence').style.color = "#5e5e5e";
+		});
+		</script>
+	</body>
+</html>  
