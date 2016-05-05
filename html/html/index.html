@@ -21,7 +21,7 @@
 			document.getElementById("bodyframe").style.height = document.getElementById("bodyframe").contentWindow.document.body.scrollHeight + 'px';
 		}
 		function updatePage(pageName){
-			setFrame('/'+pageName);
+			setFrame(pageName);
 			changeSelected(pageName);
 			resizeIframe();
 		}
@@ -39,7 +39,7 @@
 				</ul>
 			</div>
 			<div class="body">
-				<iframe id="bodyframe" src="" width="100%" frameborder="0" scrolling="no" onload="resizeIframe()"></iframe>
+				<iframe id="bodyframe" src="Home" width="100%" frameborder="0" scrolling="no" onload="resizeIframe()"></iframe>
 			</div>
 			<div class="footer">
 				<p>&#169; Copyright &#169; 2016. Wifi Tracking all rights reserved</p>
@@ -54,21 +54,29 @@
 			document.getElementById('Home').style.color = "#f78117";
 		}, function(){
 			document.getElementById('Home').style.color = "#5e5e5e";
+			var selected = document.getElementById("bodyframe").getAttribute('src');
+			changeSelected(selected);
 		});
 		$( "#Tracking" ).hover(function(){
 			document.getElementById('Tracking').style.color = "#f78117";
 		}, function(){
 			document.getElementById('Tracking').style.color = "#5e5e5e";
+			var selected = document.getElementById("bodyframe").getAttribute('src');
+			changeSelected(selected);
 		});
 		$( "#Enroll" ).hover(function(){
 			document.getElementById('Enroll').style.color = "#f78117";
 		}, function(){
 			document.getElementById('Enroll').style.color = "#5e5e5e";
+			var selected = document.getElementById("bodyframe").getAttribute('src');
+			changeSelected(selected);
 		});
 		$( "#Licence" ).hover(function(){
 			document.getElementById('Licence').style.color = "#f78117";
 		}, function(){
 			document.getElementById('Licence').style.color = "#5e5e5e";
+			var selected = document.getElementById("bodyframe").getAttribute('src');
+			changeSelected(selected);
 		});
 		</script>
 	</body>
