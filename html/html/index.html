@@ -21,9 +21,10 @@
 			document.getElementById("bodyframe").style.height = document.getElementById("bodyframe").contentWindow.document.body.scrollHeight + 'px';
 		}
 		function updatePage(pageName){
-			setFrame('/'+pageName);
-			changeSelected(pageName);
 			resizeIframe();
+			setFrame(pageName);
+			changeSelected(pageName);
+			
 		}
 		</script>
 	</head>
@@ -54,21 +55,25 @@
 			document.getElementById('Home').style.color = "#f78117";
 		}, function(){
 			document.getElementById('Home').style.color = "#5e5e5e";
+			changeSelected('Home');
 		});
 		$( "#Tracking" ).hover(function(){
 			document.getElementById('Tracking').style.color = "#f78117";
 		}, function(){
 			document.getElementById('Tracking').style.color = "#5e5e5e";
+			changeSelected('Tracking');
 		});
 		$( "#Enroll" ).hover(function(){
 			document.getElementById('Enroll').style.color = "#f78117";
 		}, function(){
 			document.getElementById('Enroll').style.color = "#5e5e5e";
+			changeSelected('Enroll');
 		});
 		$( "#Licence" ).hover(function(){
 			document.getElementById('Licence').style.color = "#f78117";
 		}, function(){
 			document.getElementById('Licence').style.color = "#5e5e5e";
+			changeSelected('Licence');
 		});
 		</script>
 	</body>
