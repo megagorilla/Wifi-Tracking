@@ -4,7 +4,6 @@
 	$dbuser = 'root';
 	$password = 'Biertaart';
 	$dbname = 'tracking';
-	$dbport = 3306;
 
 	$conn = new mysqli($servername, $dbuser, $password,$dbname);
 	if ($conn->connect_error) {
