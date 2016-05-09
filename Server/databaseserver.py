@@ -66,11 +66,17 @@ class databaseserver:
 		self.timecleanup = timecleanup
 		
 	def getinfoforcalculator(self, userid):
-		self.cur.execute ("Sniffers.X, Sniffers.Y, Sniffers.Z, Ranges.Range FROM Ranges INNER JOIN Sniffers ON Ranges.Sniffers_ID=Sniffers.ID WHERE Ranges.Users_ID = " + userid + " AND Ranges.Time > DATE_SUB(NOW(), INTERVAL "+ self.timedelay +" SECONDS) ")
+		self.cur.execute ("SELECT Sniffers.X, Sniffers.Y, Sniffers.Z, Ranges.Range FROM Ranges INNER JOIN Sniffers ON Ranges.Sniffers_ID=Sniffers.ID WHERE Ranges.Users_ID = " + userid + " AND Ranges.Time > DATE_SUB(NOW(), INTERVAL "+ self.timedelay +" SECONDS) ")
 		for row in self.cur.fetchall():
 			if row[2] == None:
 				row[2] = 0			
 		return self.curfetchall()
+		
+	def __getinfoforcalculatorquickversion(self):
+		self.cur.excute ("Sniffers.X, Sniffers.Y, Sniffers.Z, Ranges.Range FROM Ranges INNER JOIN Sniffers ON Ranges.Sniffers_ID=Sniffers.ID INNER JOIN Sniffers ON Sniffers.ID=Users.ID WHERE Ranges.Time > DATE_SUB(NOW(), INTERVAL "+ self.timedelay +" SECONDS) ")
+		
+	def getinfoforcalculatorquickversion(self):	
+		self.cur.excute ("SELECT Users_ID, X, Y, Z, Range FROM Ranges INNER JOIN Sniffers ON Ranges.Sniffers_ID = Sniffers.ID ORDER BY Users_ID AND Ranges.Time > DATE_SUB(NOW(), INTERVAL "+ self.timedelay +" SECONDS)")
 			
 		
 		
