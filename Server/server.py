@@ -9,7 +9,10 @@ class server:
 		self.Databaseserver.run_sql_file("createRanges.sql", self.Databaseserver.db)
 		self.Databaseserver.run_sql_file("createSniffers.sql", self.Databaseserver.db)
 		self.Databaseserver.run_sql_file("createUsers.sql", self.Databaseserver.db)
-
+	
+	
+	
+'''
 	def setLocation(self):
 		allids = self.Databaseserver.getIDs()
 		for id in allids:
@@ -20,7 +23,17 @@ class server:
 					self.Databaseserver.setLocations(id,time.strftime('%Y-%m-%d %H:%M:%S'), calculatepoint[0][0], calculatepoint[0][1])
 				else:
 					self.Databaseserver.setLocations(id,time.strftime('%Y-%m-%d %H:%M:%S'), calculatepoint[0][0], calculatepoint[0][1], calculatepoint[0][2])
-				
+'''					
+
+	def setLocation(self):
+		Radii =  self.Databaseserver.getinfoforcalculatorquickversion(id)
+		if len(Radii) >= 2:
+			calcutedpoint = self.Calculator.calculatepoint(Radii)
+			if len(calculatepoint[0]) = 3: 
+				self.Databaseserver.setLocations(id,time.strftime('%Y-%m-%d %H:%M:%S'), calculatepoint[0][0], calculatepoint[0][1])
+			else:
+				self.Databaseserver.setLocations(id,time.strftime('%Y-%m-%d %H:%M:%S'), calculatepoint[0][0], calculatepoint[0][1], calculatepoint[0][2])
+					
 	def startcalculator(self)
 		while True:
 			self.setLocation()

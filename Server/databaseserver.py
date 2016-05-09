@@ -71,6 +71,9 @@ class databaseserver:
 			if row[2] == None:
 				row[2] = 0			
 		return self.curfetchall()
+		
+	def getinfoforcalculatorquickversion(self):
+		self.cur.excute ("Sniffers.X, Sniffers.Y, Sniffers.Z, Ranges.Range FROM Ranges INNER JOIN Sniffers ON Ranges.Sniffers_ID=Sniffers.ID INNER JOIN Sniffers ON Sniffers.ID=Users.ID WHERE Ranges.Time > DATE_SUB(NOW(), INTERVAL "+ self.timedelay +" SECONDS) ")
 			
 		
 		
