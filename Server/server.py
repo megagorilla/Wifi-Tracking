@@ -9,15 +9,7 @@ class server:
 		self.Databaseserver.run_sql_file("createRanges.sql", self.Databaseserver.db)
 		self.Databaseserver.run_sql_file("createSniffers.sql", self.Databaseserver.db)
 		self.Databaseserver.run_sql_file("createUsers.sql", self.Databaseserver.db)
-		
 
-	
-	
-	def start():
-		
-	
-	
-	
 	def setLocation(self):
 		allids = self.Databaseserver.getIDs()
 		for id in allids:
@@ -33,29 +25,4 @@ class server:
 		while True:
 			self.setLocation()
 			self.Databaseserver.clean
-	
-			
-				
-					
-			
-		
-		
-	
-			
-		
-	
-	
-		
-	
-	
-	
-	
-	
-	
-	
-	
-
-	
-	
-	
 	
