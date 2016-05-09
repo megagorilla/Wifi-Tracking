@@ -9,6 +9,7 @@ class sniffer(threading.Thread):
 	def __init__(self, device = "", channel = None):
 		threading.Thread.__init__(self)
 		self.stations = []
+		self.whitelist = []
 		self.device = device
 		self.channel = channel
 		self.running = True
@@ -26,6 +27,17 @@ class sniffer(threading.Thread):
 		self.myPubkeyStr = self.myPublicKey.exportKey('PEM')
 		tosend = self.myPubkeyStr + ":name=" + self.name
 		self.sock.sendall(tosend)
+		isnotlast = True
+		while isnotlast:
+			string =  self.sock.recv(2048)
+			print string
+			if "LAST" in string:
+				string = string.split(";")
+				string = string[0]
+				isnotlast = False
+			self.whitelist.append(string)
+		print self.whitelist
+				
 		
 	def setDevice(self,device):
 		self.device = device
@@ -163,13 +175,15 @@ class sniffer(threading.Thread):
 				
 				if power in "-1":
 					continue
+				checkCounter = 0
 				while 1:
-					if (location == -1) or (self.stations[location].getlts() not in lts):
+					if ((location == -1) or (self.stations[location].getlts() not in lts)) and (self.__hash(Mac) in self.whitelist):
 						tosend = self.__encrypt(self.name+";"+self.__hash(Mac)+";"+lts+";"+power)
 						self.sock.sendall(tosend)
 						string =  self.sock.recv(2048)
-						if "OK" in string:
+						if ("OK" in string) or (checkCouter is 3):
 							break
+						checkCounter += 1
 					else:
 						break
 				
@@ -187,38 +201,57 @@ class sniffer(threading.Thread):
 			for station in self.stations:
 				station.display()
 
+def runCommand(str):
+		try:
+			toReturn = os.popen(str).read()
+		except:
+			print "couldn't execute command"
+		finally:
+			return toReturn
+
+			
 if __name__ == "__main__":
-	if "wlan" in sys.argv[1]:
-		device = ""
-		sniff = sniffer(channel = 5)
-		mons = sniff.getMons()
-		print "Mons: " + str(mons)
-		wlans = sniff.getWlans()
-		print "wlans: " + str(wlans)
-		if len(mons) is not len(wlans):
-			sniff.init_sniffer(sys.argv[1])
-			newmons = sniff.getMons()
-			print "newMons: " + str(newmons)
-			device = list(set(newmons)-set(mons))
-			if len(device) is not 0:
-				device = device[0]
-				sniff.setDevice(device)
-				try:
-					sniff.start()
-					while sniff.isAlive():
-						print "still running"
-						time.sleep(3)
-				except:
-					sniff.stop()
-					sniff.join(1)
-					raise
-				finally:
-					sniff.runCommand("sudo killall airodump-ng")
-					sniff.runCommand("sudo service network-manager restart")
-					sniff.runCommand("sudo iw dev "+device+" del")
-			else:
-				print device
-				print str(len(device))
-				print "could not initialize"
+	wlan = ""
+	if "wlan" not in sys.argv:
+		while 1:
+			print(runCommand("sudo airmon-ng | grep wlan"))
+			x = raw_input('Which of these devices do you want to use?')
+			if "wlan" in x:
+				wlan = x
+				break
+	else:
+		wlan = sys.argv[1]
+
+	device = ""
+	sniff = sniffer(channel = 5)
+	mons = sniff.getMons()
+	print "Mons: " + str(mons)
+	wlans = sniff.getWlans()
+	print "wlans: " + str(wlans)
+	if len(mons) is not len(wlans):
+		sniff.init_sniffer(wlan)
+		newmons = sniff.getMons()
+		print "newMons: " + str(newmons)
+		device = list(set(newmons)-set(mons))
+		if len(device) is not 0:
+			device = device[0]
+			sniff.setDevice(device)
+			try:
+				sniff.start()
+				while sniff.isAlive():
+					print "still running"
+					time.sleep(3)
+			except:
+				sniff.stop()
+				sniff.join(1)
+				raise
+			finally:
+				sniff.runCommand("sudo killall airodump-ng")
+				sniff.runCommand("sudo service network-manager restart")
+				sniff.runCommand("sudo iw dev "+device+" del")
 		else:
-			print "all devices are in use"
+			print device
+			print str(len(device))
+			print "could not initialize"
+	else:
+		print "all devices are in use"
