@@ -1,14 +1,14 @@
 <?php
 
-	echo "<h1> Create A User</h1> ";
+	echo "<h1>Enroll for Wifi-Tracking</h1> ";
 	echo "<form action='create.php' method='post'>";
-	echo "Name<input type='text' name='inputName' value='' /> <br />";
-	echo "Macadress<input type='text' name='inputMacadress' value='' />";
-	echo "<br />";
+	echo "Name<br><input type='text' name='inputName' value='' /> <br />";
+	echo "Macadress<br><input type='text' name='inputMacadress' value='' />";
+	echo "<br /><br>";
 	echo "<input type='submit' name='submit' />";
 	echo "</form>";
 
-	$servername = 'localhost';
+	/*$servername = 'localhost';
 	$dbuser = 'root';
 	$password = 'Biertaart';
 	$dbname = 'tracking';
@@ -24,5 +24,5 @@
 		echo "<h3h>" . $person['Username'] . "</h3h>";
 		echo "<p>" . $person['MacHash'] . "</p>";
 
-	}
+	}*/
 ?>
