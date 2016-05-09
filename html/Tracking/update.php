@@ -1,5 +1,6 @@
 <?php
 include 'trackeddevice.php';
+include '../checkDB.php';
 $servername        = 'localhost';
 $dbuser            = 'root';
 $password          = 'Biertaart';
