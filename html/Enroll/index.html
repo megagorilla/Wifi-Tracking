@@ -1,9 +1,25 @@
 <h1>Enroll for Wifi-Tracking</h1>
-
-<form action='create.php' method='post'>
-Name<br><input type='text' name='inputName' value='' /> <br />
-Macadress<br><input type='text' name='inputMacadress' value='' /> Example: 00:0a:95:9d:68:16 <br><a href="http://www.wikihow.com/Find-the-MAC-Address-of-Your-Computer" target="_blank"> Find the MAC address of your computer or mobile device</a>
+<script>
+function IsValid(){
+	MacAdress = document.getElementById("Mac").value;
+	console.log(MacAdress);
+	var regex = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
+	if(regex.test(MacAdress)){
+		document.getElementById('enrollForm').submit();
+	}else{
+		alert("not a valid mac adress");
+	}
+}
+</script>
+<form id="enrollForm" action='create.php' method='post'>
+Name<br><input type='text' name='inputName' value='' placeholder="Username"
+onkeydown = "if (event.keyCode == 13)
+                        document.getElementById('submit').click()"/> <br />
+Macadress<br><input id="Mac" type='text' name='inputMacadress' value='' placeholder="00:0a:95:9d:68:16" 
+onkeydown = "if (event.keyCode == 13)
+                        document.getElementById('submit').click()"    /><br><br>
+<a href="http://www.wikihow.com/Find-the-MAC-Address-of-Your-Computer" target="_blank"> Find the MAC address of your computer or mobile device</a>
 <br /><br>
 By clicking Sign Up, you agree to our Terms<br>
-<input type='submit' name='submit' />
+<input id="submit" type="button" onclick="IsValid()" value="Submit form">
 </form>
