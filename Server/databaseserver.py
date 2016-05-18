@@ -79,6 +79,7 @@ class databaseserver:
 		self.cur.excute ("SELECT Users_ID, X, Y, Z, Range FROM Ranges INNER JOIN Sniffers ON Ranges.Sniffers_ID = Sniffers.ID ORDER BY Users_ID AND Ranges.Time > DATE_SUB(NOW(), INTERVAL "+ self.timedelay +" SECONDS)")
 			
 		
-		
+if __name__ == "__main__":
+	
 	
 		
