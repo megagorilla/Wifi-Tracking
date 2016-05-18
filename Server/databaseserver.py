@@ -9,7 +9,7 @@ class databaseserver:
 
 		
 		#create cursor object that will allow excution of queries
-		self.cur = db.cursor()
+		self.cur = self.db.cursor()
 		self.timedelay = timedelay
 		self.timecleanup = timecleanup
 	
@@ -25,29 +25,29 @@ class databaseserver:
 		self.cur.execute ("SELECT * FROM Ranges WHERE ID = "+ id +" AND Time > DATE_SUB(NOW(), INTERVAL "+ self.timedelay +" SECONDS) ")
 		for row in self.cur.fetchall():
 			#print row[0]
-			#print self.curfetchall()
-			return self.curfetchall()
+			#print self.cur.fetchall()
+			return self.cur.fetchall()
 			
 	def getsniffer(self, id):
 		self.cur.execute ("SELECT * FROM Sniffers WHERE ID = "+ id)
-		return self.curfetchall()
+		return self.cur.fetchall()
 	
 	def setLocations(self, userid,time, x, y, z = None ):
-		self.cur.excute ("SELECT  FROM Locations WHERE Users_ID = "+ userid)
+		self.cur.excute ("SELECT * FROM Locations WHERE Users_ID = "+ userid)
 		result = self.cur.fetchall()
 		if len(result) is 0:
 			if z is None:
-				self.cur.excute (" INSERT INTO Locations(`Users_ID`, `X`, `Y`, `Time`) VALUES("+ userid +", "+ x +", "+ y +", "+ time +")  ")
+				self.cur.excute (" INSERT INTO Locations(`Users_ID`, `X`, `Y`, `Time`) VALUES("+ userid +", "+ x +", "+ y +", NOW())  ")
 				self.db.commit()
-			else
-				self.cur.excute (" INSERT INTO Locations(`Users_ID`, `X`, `Y`, `Z`, `Time`) VALUES("+ userid +", "+ x +", "+ y +", "+ z +", "+ time +")  ")
+			else:
+				self.cur.excute (" INSERT INTO Locations(`Users_ID`, `X`, `Y`, `Z`, `Time`) VALUES("+ userid +", "+ x +", "+ y +", "+ z +", NOW())  ")
 				self.db.commit()
 		else:
 			if z is None:
-				self.cur.excute (" Update INTO Locations(`Users_ID`, `X`, `Y`, `Time`) VALUES("+ userid +", "+ x +", "+ y +", "+ time +")WHERE Users_ID = " + userid)
+				self.cur.excute (" Update INTO Locations(`Users_ID`, `X`, `Y`, `Time`) VALUES("+ userid +", "+ x +", "+ y +", NOW())WHERE Users_ID = " + userid)
 				self.db.commit()
-			else
-				self.cur.excute (" Update INTO Locations(`Users_ID`, `X`, `Y`, `Z`, `Time`) VALUES("+ userid +", "+ x +", "+ y +", "+ z +", "+ time +") WHERE Users_ID = " + userid)
+			else:
+				self.cur.excute (" Update INTO Locations(`Users_ID`, `X`, `Y`, `Z`, `Time`) VALUES("+ userid +", "+ x +", "+ y +", "+ z +", NOW()) WHERE Users_ID = " + userid)
 				self.db.commit()
 				
 	def cleanDB(self):
@@ -55,8 +55,8 @@ class databaseserver:
 		self.db.commit()
 		
 	def getIDs(self):
-		self.cur.execute ("SELECT ID FROM Users)
-		return self.curfetchall()
+		self.cur.execute ("SELECT ID FROM Users")
+		return self.cur.fetchall()
 		
 	
 	def settimedelay(self, timedelay):
@@ -66,20 +66,30 @@ class databaseserver:
 		self.timecleanup = timecleanup
 		
 	def getinfoforcalculator(self, userid):
-		self.cur.execute ("SELECT Sniffers.X, Sniffers.Y, Sniffers.Z, Ranges.Range FROM Ranges INNER JOIN Sniffers ON Ranges.Sniffers_ID=Sniffers.ID WHERE Ranges.Users_ID = " + userid + " AND Ranges.Time > DATE_SUB(NOW(), INTERVAL "+ self.timedelay +" SECONDS) ")
+		self.cur.execute ("SELECT Sniffers.X, Sniffers.Y, Sniffers.Z Ranges.Range FROM Ranges INNER JOIN Sniffers ON Ranges.Sniffers_ID=Sniffers.ID WHERE Ranges.Users_ID = " + userid + " AND Ranges.Time > DATE_SUB(NOW(), INTERVAL "+ self.timedelay +" SECONDS) ")
 		for row in self.cur.fetchall():
 			if row[2] == None:
 				row[2] = 0			
-		return self.curfetchall()
+		return self.cur.fetchall()
 		
 	def __getinfoforcalculatorquickversion(self):
-		self.cur.excute ("Sniffers.X, Sniffers.Y, Sniffers.Z, Ranges.Range FROM Ranges INNER JOIN Sniffers ON Ranges.Sniffers_ID=Sniffers.ID INNER JOIN Sniffers ON Sniffers.ID=Users.ID WHERE Ranges.Time > DATE_SUB(NOW(), INTERVAL "+ self.timedelay +" SECONDS) ")
+		self.cur.execute("Sniffers.X, Sniffers.Y, Sniffers.Z Ranges.Range FROM Ranges INNER JOIN Sniffers ON Ranges.Sniffers_ID=Sniffers.ID INNER JOIN Sniffers ON Sniffers.ID=Users.ID WHERE Ranges.Time > DATE_SUB(NOW(), INTERVAL "+ self.timedelay +" SECONDS) ")
+		return self.cur.fetchall()
 		
 	def getinfoforcalculatorquickversion(self):	
-		self.cur.excute ("SELECT Users_ID, X, Y, Z, Range FROM Ranges INNER JOIN Sniffers ON Ranges.Sniffers_ID = Sniffers.ID ORDER BY Users_ID AND Ranges.Time > DATE_SUB(NOW(), INTERVAL "+ self.timedelay +" SECONDS)")
+		self.cur.execute("SELECT Users_ID, X, Y, Z, 'Range' FROM Ranges  INNER JOIN Sniffers ON Ranges.Sniffers_ID = Sniffers.ID WHERE Ranges.Time > DATE_SUB(NOW(), INTERVAL "+ str(self.timedelay) +" SECOND) ORDER BY Users_ID")
+		return self.cur.fetchall()
+
+	def getusers(self):
+		self.cur.execute("SELECT * FROM Users")
+		return self.cur.fetchall()
+	
 			
 		
 if __name__ == "__main__":
+	obj = databaseserver(50, 20)
+	print obj.getusers()
+	print obj.getinfoforcalculatorquickversion()
 	
 	
 		
