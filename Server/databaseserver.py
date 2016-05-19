@@ -22,40 +22,40 @@ class databaseserver:
 	
 	def getRadii(self, id):	
 		#timenow = time.strftime('%Y-%m-%d %H:%M:%S')	
-		self.cur.execute ("SELECT * FROM Ranges WHERE ID = "+ id +" AND Time > DATE_SUB(NOW(), INTERVAL "+ self.timedelay +" SECONDS) ")
+		self.cur.execute("SELECT * FROM Ranges WHERE ID = "+ id +" AND Time > DATE_SUB(NOW(), INTERVAL "+ self.timedelay +" SECONDS) ")
 		for row in self.cur.fetchall():
 			#print row[0]
 			#print self.cur.fetchall()
 			return self.cur.fetchall()
 			
 	def getsniffer(self, id):
-		self.cur.execute ("SELECT * FROM Sniffers WHERE ID = "+ id)
+		self.cur.execute("SELECT * FROM Sniffers WHERE ID = "+ id)
 		return self.cur.fetchall()
 	
-	def setLocations(self, userid,time, x, y, z = None ):
-		self.cur.excute ("SELECT * FROM Locations WHERE Users_ID = "+ userid)
+	def setLocations(self, userid, x, y, z = None ):
+		self.cur.execute("SELECT * FROM Locations WHERE Users_ID = "+ str(userid))
 		result = self.cur.fetchall()
 		if len(result) is 0:
 			if z is None:
-				self.cur.excute (" INSERT INTO Locations(`Users_ID`, `X`, `Y`, `Time`) VALUES("+ userid +", "+ x +", "+ y +", NOW())  ")
+				self.cur.execute(" INSERT INTO Locations(`Users_ID`, `X`, `Y`, `Time`) VALUES("+ str(userid) +", "+ str(x) +", "+ str(y) +", NOW())  ")
 				self.db.commit()
 			else:
-				self.cur.excute (" INSERT INTO Locations(`Users_ID`, `X`, `Y`, `Z`, `Time`) VALUES("+ userid +", "+ x +", "+ y +", "+ z +", NOW())  ")
+				self.cur.execute(" INSERT INTO Locations(`Users_ID`, `X`, `Y`, `Z`, `Time`) VALUES("+ str(userid) +", "+ str(x) +", "+ str(y) +", "+ str(z) +", NOW())  ")
 				self.db.commit()
 		else:
 			if z is None:
-				self.cur.excute (" Update INTO Locations(`Users_ID`, `X`, `Y`, `Time`) VALUES("+ userid +", "+ x +", "+ y +", NOW())WHERE Users_ID = " + userid)
+				self.cur.execute("UPDATE Locations SET `X`="+ str(x) +", `Y`="+ str(y) +", `Z`= NULL, `Time`=NOW() WHERE `Users_ID`=" + str(userid))
 				self.db.commit()
 			else:
-				self.cur.excute (" Update INTO Locations(`Users_ID`, `X`, `Y`, `Z`, `Time`) VALUES("+ userid +", "+ x +", "+ y +", "+ z +", NOW()) WHERE Users_ID = " + userid)
+				self.cur.execute("UPDATE Locations SET `X`="+ str(x) +", `Y`="+ str(y) +", `Z`="+ str(z) +", `Time`=NOW() WHERE `Users_ID`=" + str(userid))
 				self.db.commit()
 				
 	def cleanDB(self):
-		self.cur.execute ("DELETE  * FROM Ranges, Locations  WHERE Time > DATE_SUB(NOW(), INTERVAL "+ self.timecleanup +" MINUTES) ")
+		self.cur.execute("DELETE  * FROM Ranges, Locations  WHERE Time > DATE_SUB(NOW(), INTERVAL "+ self.timecleanup +" MINUTES) ")
 		self.db.commit()
 		
 	def getIDs(self):
-		self.cur.execute ("SELECT ID FROM Users")
+		self.cur.execute("SELECT ID FROM Users")
 		return self.cur.fetchall()
 		
 	
@@ -66,7 +66,7 @@ class databaseserver:
 		self.timecleanup = timecleanup
 		
 	def getinfoforcalculator(self, userid):
-		self.cur.execute ("SELECT Sniffers.X, Sniffers.Y, Sniffers.Z Ranges.Range FROM Ranges INNER JOIN Sniffers ON Ranges.Sniffers_ID=Sniffers.ID WHERE Ranges.Users_ID = " + userid + " AND Ranges.Time > DATE_SUB(NOW(), INTERVAL "+ self.timedelay +" SECONDS) ")
+		self.cur.execute("SELECT Sniffers.X, Sniffers.Y, Sniffers.Z Ranges.Range FROM Ranges INNER JOIN Sniffers ON Ranges.Sniffers_ID=Sniffers.ID WHERE Ranges.Users_ID = " + userid + " AND Ranges.Time > DATE_SUB(NOW(), INTERVAL "+ self.timedelay +" SECONDS) ")
 		for row in self.cur.fetchall():
 			if row[2] == None:
 				row[2] = 0			
@@ -79,10 +79,30 @@ class databaseserver:
 	def getinfoforcalculatorquickversion(self):	
 		self.cur.execute("SELECT Users_ID, X, Y, Z, 'Range' FROM Ranges  INNER JOIN Sniffers ON Ranges.Sniffers_ID = Sniffers.ID WHERE Ranges.Time > DATE_SUB(NOW(), INTERVAL "+ str(self.timedelay) +" SECOND) ORDER BY Users_ID")
 		return self.cur.fetchall()
-
+	
 	def getusers(self):
 		self.cur.execute("SELECT * FROM Users")
 		return self.cur.fetchall()
+
+	def setsniffer(self, name,x, y, z = None):
+		if z is None:
+			self.cur.execute(" INSERT INTO Locations(`NAME`, `X`, `Y`) VALUES("+ name +", "+ str(x) +", "+ str(y))
+			self.db.commit()
+		else:
+			self.cur.execute(" INSERT INTO Locations(`NAME`, `X`, `Y`, `Z`) VALUES("+ name +", "+ str(x) +", "+ str(y) +", "+ str(z))
+			self.db.commit()
+
+	def setRanges(self, userid, sniffersid, range):
+		result = self.cur.execute("SELECT * FROM Ranges WHERE Users_ID = "+ str(userid)+" AND Sniffers_ID = "+ str(sniffersid))
+		result = self.cur.fetchall()
+		if len(result) is 0:
+			self.cur.execute(" INSERT INTO Ranges(`Users_ID`, `Sniffers_ID`, `Range`, `Time`) VALUES("+ str(userid) +", "+ str(sniffersid) +", "+ str(range) +", NOW()")
+		else:
+			self.cur.execute("UPDATE Ranges SET `Users_ID`="+ str(userid) +", `Sniffers_ID`="+ str(sniffersid) +", `Range`="+ str(range) +", `Time`=NOW() WHERE `Users_ID`=" + str(userid) +" AND Sniffers_ID = "+ str(sniffersid))
+				self.db.commit() 
+	
+	
+	
 	
 			
 		
@@ -90,6 +110,7 @@ if __name__ == "__main__":
 	obj = databaseserver(50, 20)
 	print obj.getusers()
 	print obj.getinfoforcalculatorquickversion()
+	obj.setLocations(1, 6, 5, 4)
 	
 	
 		
