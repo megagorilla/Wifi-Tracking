@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS `tracking`.`Ranges` (
     `ID` INT NOT NULL AUTO_INCREMENT,
     `Users_ID` INT NOT NULL,
     `Sniffers_ID` INT NOT NULL,
-    `Range` INT NOT NULL,
+    `Range` DOUBLE NOT NULL,
     `Time` DATETIME NOT NULL,
     INDEX `fk_Ranges_Users1_idx` (`Users_ID` ASC),
     INDEX `fk_Ranges_Sniffers1_idx` (`Sniffers_ID` ASC),

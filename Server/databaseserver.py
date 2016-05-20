@@ -13,7 +13,7 @@ class databaseserver:
 		self.timedelay = timedelay
 		self.timecleanup = timecleanup
 	
-	def run_sql_file(filename, connection):
+	def run_sql_file(self, filename, connection):
 		file = open(filename, 'r')
 		sql = s = " ".join(file.readlines())
 		cursor = connection.cursor()
@@ -77,20 +77,30 @@ class databaseserver:
 		return self.cur.fetchall()
 		
 	def getinfoforcalculatorquickversion(self):	
-		self.cur.execute("SELECT Users_ID, X, Y, Z, 'Range' FROM Ranges  INNER JOIN Sniffers ON Ranges.Sniffers_ID = Sniffers.ID WHERE Ranges.Time > DATE_SUB(NOW(), INTERVAL "+ str(self.timedelay) +" SECOND) ORDER BY Users_ID")
+		self.cur.execute("SELECT Users_ID, X, Y, Z, Ranges.Range FROM Ranges  INNER JOIN Sniffers ON Ranges.Sniffers_ID = Sniffers.ID WHERE Ranges.Time > DATE_SUB(NOW(), INTERVAL "+ str(self.timedelay) +" SECOND) ORDER BY Users_ID")
 		return self.cur.fetchall()
 	
 	def getusers(self):
 		self.cur.execute("SELECT * FROM Users")
 		return self.cur.fetchall()
 
-	def setsniffer(self, name,x, y, z = None):
-		if z is None:
-			self.cur.execute(" INSERT INTO Locations(`NAME`, `X`, `Y`) VALUES("+ name +", "+ str(x) +", "+ str(y))
-			self.db.commit()
+	def setsniffer(self, id, name,x, y, z = None):
+		result = self.cur.execute("SELECT * FROM Sniffers WHERE `ID` = "+ str(id))
+		result = self.cur.fetchall()
+		if len(result) is 0:
+			if z is None:
+				self.cur.execute(" INSERT INTO Sniffers(`ID`, `NAME`, `X`, `Y`) VALUES("+ str(id) +", "+ name +", "+ str(x) +", "+ str(y))
+				self.db.commit()
+			else:
+				self.cur.execute(" INSERT INTO Sniffers(`ID`, `NAME`, `X`, `Y`, `Z`) VALUES("+ str(id) +", "+ name +", "+ str(x) +", "+ str(y) +", "+ str(z))
+				self.db.commit()
 		else:
-			self.cur.execute(" INSERT INTO Locations(`NAME`, `X`, `Y`, `Z`) VALUES("+ name +", "+ str(x) +", "+ str(y) +", "+ str(z))
-			self.db.commit()
+			if z is None:
+				self.cur.execute("UPDATE Locations SET `NAME`="+ name +", `X`="+ str(x) +", `Y`="+ str(y) +", `Z`= NULL, WHERE `ID`=" + str(id))
+				self.db.commit()
+			else:
+				self.cur.execute("UPDATE Locations SET `NAME`="+ name +", `X`="+ str(x) +", `Y`="+ str(y) +", `Z`= "+ str(z) +", WHERE `ID`=" + str(id))
+				self.db.commit()
 
 	def setRanges(self, userid, sniffersid, range):
 		result = self.cur.execute("SELECT * FROM Ranges WHERE Users_ID = "+ str(userid)+" AND Sniffers_ID = "+ str(sniffersid))
@@ -99,7 +109,7 @@ class databaseserver:
 			self.cur.execute(" INSERT INTO Ranges(`Users_ID`, `Sniffers_ID`, `Range`, `Time`) VALUES("+ str(userid) +", "+ str(sniffersid) +", "+ str(range) +", NOW()")
 		else:
 			self.cur.execute("UPDATE Ranges SET `Users_ID`="+ str(userid) +", `Sniffers_ID`="+ str(sniffersid) +", `Range`="+ str(range) +", `Time`=NOW() WHERE `Users_ID`=" + str(userid) +" AND Sniffers_ID = "+ str(sniffersid))
-				self.db.commit() 
+			self.db.commit() 
 	
 	
 	
@@ -107,10 +117,10 @@ class databaseserver:
 			
 		
 if __name__ == "__main__":
-	obj = databaseserver(50, 20)
-	print obj.getusers()
+	obj = databaseserver(400000, 20)
+	#print obj.getusers()
 	print obj.getinfoforcalculatorquickversion()
-	obj.setLocations(1, 6, 5, 4)
+	obj.setLocations(1, 6, 5)
 	
 	
 		
