@@ -1,11 +1,14 @@
 from calculator import calculator
 from databaseserver import databaseserver
+from decrypter import Decrypter
+
 
 
 class server:
 	def __init__(self, timedelay, timecleanup):	
 		self.Databaseserver =  databaseserver(timedelay, timecleanup)
 		self.Calculator = calculator()
+		self.Decrypterserver = Dectrypter()
 		self.Databaseserver.run_sql_file("../SQL/createUsers.sql", self.Databaseserver.db)
 		self.Databaseserver.run_sql_file("../SQL/createSniffers.sql", self.Databaseserver.db)
 		self.Databaseserver.run_sql_file("../SQL/createRanges.sql", self.Databaseserver.db)
@@ -19,7 +22,7 @@ class server:
 	
 		
 
-	def setLocation(self):
+	def setLocations(self):
 		ALLRadiiTuple =  self.Databaseserver.getinfoforcalculatorquickversion()
 		ALLRadii = self.converttuplestoarray(ALLRadiiTuple)
 		lastforradiiid = 0
@@ -76,8 +79,29 @@ class server:
 					
 	def startcalculator(self):
 		while True:
-			self.setLocation()
-			self.Databaseserver.clean
+			self.setLocations()
+			self.Databaseserver.cleanDB()
+
+	def startdecrypter(self):
+		for machash in self.Databaseserver.getmachash():
+			self.Decrypter.addWhitelist()
+		
+
+
+	def __startdecrypter(self):
+		while self.Decrypterserver.serverRunning():
+			#string = raw_input("")
+			#test.broadcast(string)
+			time.sleep(1)
+			if test.server.hasReceived():
+				print "\nNEW MESSAGES"
+			test.parseAll()
+		except:
+			test.stopServer()
+			raise
+
+
+	def startserver(self):
 
 
 	
@@ -98,5 +122,6 @@ class server:
 
 if __name__ == "__main__":
 	Server = server(4000000, 30)
-	Server.setLocation()
+	Server.setLocations()
+
 	

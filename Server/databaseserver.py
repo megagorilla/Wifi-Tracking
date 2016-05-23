@@ -31,6 +31,10 @@ class databaseserver:
 	def getsniffer(self, id):
 		self.cur.execute("SELECT * FROM Sniffers WHERE ID = "+ id)
 		return self.cur.fetchall()
+
+	def getmachash(self):
+		self.cur.excute("SELECT MacHash FROM Users")
+		return self.cur.fetchall()
 	
 	def setLocations(self, userid, x, y, z = None ):
 		self.cur.execute("SELECT * FROM Locations WHERE Users_ID = "+ str(userid))
