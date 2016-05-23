@@ -18,7 +18,7 @@ class Decrypter(object):
 	def serverRunning(self):
 		return self.server.isRunning()
 		
-	def def addWhitelist(self,MacHash):
+	def addWhitelist(self,MacHash):
 		self.server.addWhitelist(MacHash)
 		
 	def broadcast(self,msg):
@@ -47,7 +47,7 @@ if __name__ == "__main__":
 			time.sleep(1)
 			if test.server.hasReceived():
 				print "\nNEW MESSAGES"
-			test.parseAll()
+			test.parseAll()		
 	except:
 		test.stopServer()
 		raise

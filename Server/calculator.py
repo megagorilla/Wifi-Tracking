@@ -40,12 +40,19 @@ class calculator:
 		plt.show()		
 		
 	
-	def calculatepoint(self,data):
+	def calculatepoint(self,Data):
+		data = []
+		for dat in Data:
+			data.append(list(dat))
 		is3d = False
 		for dat in data:
 			if len(dat) == 4:
-				is3d = True
+				if dat[2] == 0:
+					dat.pop(2)
+				else:
+					is3d = True
 		if is3d == True:
+			#print "is 3d is true"
 			#counter = 0
 			dlist = []
 			for dat in data:
@@ -53,19 +60,12 @@ class calculator:
 					templist = list(dat)
 					templist.append(templist[2])
 					templist[2] = 0.0
-					#dat = tuple(templist)
-					#dlist[counter] = tuple(templist)
 					dlist.append(tuple(templist))
-					#print data[counter]
-					#print dlist
-					#counter = counter + 1
 				else:
 					dlist.append(dat)
-					#print dlist
-					#counter = counter + 1
-			print dlist
 			return leastsq(self.residuals3D, self.beginpoint3D, args=(dlist))
 		else:
+			#print "is 3d is false"
 			return leastsq(self.residuals2D, self.beginpoint2D, args=(data))
 		
 	def setbeginpoint3D(self, beginpoint):
@@ -82,14 +82,19 @@ class calculator:
 
 if __name__ == "__main__":
 	points1 = [ (-1.91373, -0.799904, 2.04001), (-0.935453, -0.493735, 0.959304), (0.630964, -0.653075, 0.728477), (0.310857, -0.018258, 0.301885), (0.0431084, 1.25321, 1.19012) ]
-	points3 = [ (10.0,10.0, 0.0, 5.0) , (20.0,20.0,5.0), (20.0,10.0,5.0)]
+	points3 = [ (10.0,10.0, 0, 5.0) , (20.0,20.0,5.0), (20.0,10.0,5.0)]
+	points2 = [[10.0, 10.0, 0.00000, 5.0], [20.0, 20.0, 5.0], [20.0, 10.0, 5.0]]
+
 
 	
 
 	obj = calculator()
 
 	obj.plot(obj.calculatepoint(points1), points1)
-	print obj.calculatepoint(points3)
+	#print "tuple"
+	print obj.calculatepoint(points1)
+	#print "array"
+	print obj.calculatepoint(points2)
 	while 1:
 		print "still rummimg"
 		time.sleep(3)
