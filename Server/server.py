@@ -18,9 +18,7 @@ class server:
 		arraywitharray = []
 		for tupleinarray in array:
 			arraywitharray.append(list(tupleinarray))
-		return arraywitharray	
-	
-		
+		return arraywitharray
 
 	def setLocations(self):
 		ALLRadiiTuple =  self.Databaseserver.getinfoforcalculatorquickversion()
@@ -69,26 +67,19 @@ class server:
 					else:
 						self.Databaseserver.setLocations(databaseid, calculatepoint[0][0], calculatepoint[0][1])
 			counter = counter + 1
-			
-				
-						
-				
-				
 
-			
-					
 	def startcalculator(self):
 		while True:
 			self.setLocations()
 			self.Databaseserver.cleanDB()
 
-	def startdecrypter(self):
+	def addtowhitelist(self):
 		for machash in self.Databaseserver.getmachash():
 			self.Decrypter.addWhitelist()
 		
 
 
-	def __startdecrypter(self):
+	def startdecrypter(self):
 		while self.Decrypterserver.serverRunning():
 			#string = raw_input("")
 			#test.broadcast(string)
@@ -101,24 +92,6 @@ class server:
 			raise
 
 
-	def startserver(self):
-
-
-	
-
-		
-'''	
-	def setLocation(self):
-		allids = self.Databaseserver.getIDs()
-		for id in allids:
-			Radii =  self.Databaseserver.getinfoforcalculator(id)
-			if len(Radii) >= 2:
-				calcutedpoint = self.Calculator.calculatepoint(Radii)
-				if len(calculatepoint[0]) = 3: 
-					self.Databaseserver.setLocations(id,time.strftime('%Y-%m-%d %H:%M:%S'), calculatepoint[0][0], calculatepoint[0][1])
-				else:
-					self.Databaseserver.setLocations(id,time.strftime('%Y-%m-%d %H:%M:%S'), calculatepoint[0][0], calculatepoint[0][1], calculatepoint[0][2])
-'''	
 
 if __name__ == "__main__":
 	Server = server(4000000, 30)
