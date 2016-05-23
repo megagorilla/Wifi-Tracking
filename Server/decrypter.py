@@ -30,15 +30,13 @@ class Decrypter(object):
 		self.server.join()
 		
 	def parseAll(self):
+		toReturn = []
 		while 1:
 			msg = self.server.nextReceived()
 			if msg is -1:
 				break
-			self.parse(msg)
-		
-	def parse(self, msg):
-		print "says: " + msg
-		
+			toReturn.append(msg)
+		return toReturn
 			
 if __name__ == "__main__":
 	try:
