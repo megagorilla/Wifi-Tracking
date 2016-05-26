@@ -1,6 +1,7 @@
 from calculator import calculator
 from databaseserver import databaseserver
 from decrypter import Decrypter
+from datetime import datetime
 
 
 
@@ -8,13 +9,13 @@ class server:
 	def __init__(self, timedelay, timecleanup):	
 		self.Databaseserver =  databaseserver(timedelay, timecleanup)
 		self.Calculator = calculator()
-		self.Decrypterserver = Dectrypter()
+		self.Decrypterserver = Decrypter()
 		self.Databaseserver.run_sql_file("../SQL/createUsers.sql", self.Databaseserver.db)
 		self.Databaseserver.run_sql_file("../SQL/createSniffers.sql", self.Databaseserver.db)
 		self.Databaseserver.run_sql_file("../SQL/createRanges.sql", self.Databaseserver.db)
 		self.Databaseserver.run_sql_file("../SQL/createLocations.sql", self.Databaseserver.db)
 
-	def converttuplestoarray(self, array):
+	def convertTuplesToArray(self, array):
 		arraywitharray = []
 		for tupleinarray in array:
 			arraywitharray.append(list(tupleinarray))
@@ -68,25 +69,49 @@ class server:
 						self.Databaseserver.setLocations(databaseid, calculatepoint[0][0], calculatepoint[0][1])
 			counter = counter + 1
 
-	def startcalculator(self):
+	def runcalculator(self):
 		while True:
 			self.setLocations()
 			self.Databaseserver.cleanDB()
 
-	def addtowhitelist(self):
+	def addTowWitelist(self):
 		for machash in self.Databaseserver.getmachash():
-			self.Decrypter.addWhitelist()
+			self.Decrypter.addWhitelist(machash)
+	
+	def parseArrayToDatabase(self, Array):
+		for element in Array:
+			self.Databaseserver.setRanges(self, element[1], element[0], element[2], element[3])	
+		
+					
+		
+	def parseSnifferToArray(self, Sniffer):
+		for element in Sniffer:
+			#print split
+			
+			element = element.split(',')
+			print element
+			element[0] = self.Databaseserver.getSnifferIDFromName(element[0])
+			element[1] = self.Databaseserver.getIDFromMac(element[1])
+			element[2] = datetime.strptime(element[2], '%b %d %Y %I:%M%p')	
+			element[3] = self.Calculator.convertPowerToRange(double(element[3]))
+
+		return Sniffer
+		
 		
 
-
-	def startdecrypter(self):
-		while self.Decrypterserver.serverRunning():
-			#string = raw_input("")
-			#test.broadcast(string)
-			time.sleep(1)
-			if test.server.hasReceived():
-				print "\nNEW MESSAGES"
-			test.parseAll()
+	def startserver(self):
+		self.Decrypterserver.addtowhitelist()
+		try:
+			while self.Decrypterserver.serverRunning():
+				time.sleep(1)
+				'''
+				#if test.server.hasReceived():
+					#print "NEW MESSAGES"
+				'''
+				self.parseArrayToDatabase(self.parseSnifferToArray(self.Decrypterserver.parseAll()))
+				self.runcalculator()
+	
+	
 		except:
 			test.stopServer()
 			raise
@@ -95,6 +120,9 @@ class server:
 
 if __name__ == "__main__":
 	Server = server(4000000, 30)
-	Server.setLocations()
+	test =  Server.parseSnifferToArray(["sniffer1,08:00:27:18:15:a0,2016-05-20 14:33:18,15"])
+	print test
+	Server.parseArrayToDatabase(test)
+	#Server.setLocations()
 
 	

@@ -73,6 +73,9 @@ class calculator:
 	
 	def setbeginpoint2D(self, beginpoint):
 		self.beginpoint2D = beginpoint
+
+	def convertPowerToRange(self, pwr):
+		return pwr*10 
 		
 	
 		
