@@ -20,8 +20,7 @@ class SocketServer(threading.Thread):
 		self.pubkeyStr = pubkey
 		self.privateKey = privkey
 		self.whitelist = []
-		self.whitelist.append("91abea155fdf14c519923f0c512814e373d997c037aea13c64f89c450796c95d0744ad27ca1e13531fb975847fc03ef9a0bae26b64d43c2218508ba4ab63fe62")
-		
+
 	def addWhitelist(self,MacHash):
 		self.whitelist.append(MacHash)
 		
