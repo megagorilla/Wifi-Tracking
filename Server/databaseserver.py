@@ -93,7 +93,7 @@ class databaseserver:
 		result = self.cur.fetchall()
 		if len(result) is 0:
 			if z is None:
-				self.cur.execute(" INSERT INTO Sniffers(`ID`, `NAME`, `X`, `Y`) VALUES("+ str(id) +", "+ name +", "+ str(x) +", "+ str(y))
+				self.cur.execute(" INSERT INTO Sniffers(`ID`, `NAME`, `X`, `Y`) VALUES('"+ str(id) +"', '"+ name +"', '"+ str(x) +"', '"+ str(y) +"'")
 				self.db.commit()
 			else:
 				self.cur.execute(" INSERT INTO Sniffers(`ID`, `NAME`, `X`, `Y`, `Z`) VALUES("+ str(id) +", "+ name +", "+ str(x) +", "+ str(y) +", "+ str(z))
@@ -106,22 +106,27 @@ class databaseserver:
 				self.cur.execute("UPDATE Locations SET `NAME`="+ name +", `X`="+ str(x) +", `Y`="+ str(y) +", `Z`= "+ str(z) +", WHERE `ID`=" + str(id))
 				self.db.commit()
 
-	def setRanges(self, userid, sniffersid, time, range ):
+	def setRanges(self, userid, sniffersid, time, ranges ):
+		print userid, sniffersid, time, ranges
 		result = self.cur.execute("SELECT * FROM Ranges WHERE Users_ID = "+ str(userid)+" AND Sniffers_ID = "+ str(sniffersid))
 		result = self.cur.fetchall()
+		print "so far so good"
 		if len(result) is 0:
-			self.cur.execute(" INSERT INTO Ranges(`Users_ID`, `Sniffers_ID`, `Range`, `Time`) VALUES("+ str(userid) +", "+ str(sniffersid) +", "+ str(range) +", "+ time)
+			print "result is 0"
+			self.cur.execute(" INSERT INTO Ranges(`Users_ID`, `Sniffers_ID`, Ranges.Range, `Time`) VALUES("+ str(userid) +", "+ str(sniffersid) +", "+ str(ranges) +", "+ time)
+			self.db.commit()
 		else:
-			self.cur.execute("UPDATE Ranges SET `Users_ID`="+ str(userid) +", `Sniffers_ID`="+ str(sniffersid) +", `Range`="+ str(range) +", `Time`="+ time +" WHERE `Users_ID`=" + str(userid) +" AND Sniffers_ID = "+ str(sniffersid))
+			print "result is not 0"
+			self.cur.execute("UPDATE Ranges SET `Users_ID`="+ str(userid) +", `Sniffers_ID`="+ str(sniffersid) +", Ranges.Range="+ str(ranges) +", `Time`="+ time +" WHERE `Users_ID`=" + str(userid) +" AND Sniffers_ID = "+ str(sniffersid))
 			self.db.commit() 
 
 
 	def getIDFromMac(self, machash):
-		self.cur.execute("SELECT ID FROM Users WHERE MacHash =" + machash)
+		self.cur.execute("SELECT `ID` FROM Users WHERE `MacHash` = '" + str(machash)+"'")
 		return self.cur.fetchall()
 
 	def getSnifferIDFromName(self, name):
-		self.cur.execute("SELECT ID FROM Sniffers WHERE NAME =" + name)
+		self.cur.execute("SELECT `ID` FROM Sniffers WHERE NAME = '" + str(name)+"'")
 		return self.cur.fetchall()
 		
 	

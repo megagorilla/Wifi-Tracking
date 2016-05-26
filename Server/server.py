@@ -2,7 +2,7 @@ from calculator import calculator
 from databaseserver import databaseserver
 from decrypter import Decrypter
 from datetime import datetime
-
+import sys, os
 
 
 class server:
@@ -80,22 +80,35 @@ class server:
 	
 	def parseArrayToDatabase(self, Array):
 		for element in Array:
-			self.Databaseserver.setRanges(self, element[1], element[0], element[2], element[3])	
+			self.Databaseserver.setRanges(element[1], element[0], element[2], element[3])	
 		
 					
 		
 	def parseSnifferToArray(self, Sniffer):
+		counter = 0
+		returnarray = []
 		for element in Sniffer:
 			#print split
-			
-			element = element.split(',')
-			print element
-			element[0] = self.Databaseserver.getSnifferIDFromName(element[0])
-			element[1] = self.Databaseserver.getIDFromMac(element[1])
-			element[2] = datetime.strptime(element[2], '%b %d %Y %I:%M%p')	
-			element[3] = self.Calculator.convertPowerToRange(double(element[3]))
+			#print element
+			element = element.split(';')
+			#print "split  %s" % element
+			#print element[0]
+			element0 = self.Databaseserver.getSnifferIDFromName(element[0])
+			returnarray.append([])
+			returnarray[counter].append(element0[0][0])
+			print "dont element 0"
+			element1 = self.Databaseserver.getIDFromMac(element[1])
+			returnarray[counter].append(element1[0][0])
+			print "dont element 1"
+			returnarray[counter].append(datetime.strptime(element[2], '%Y-%m-%d %H:%M:%S'))
+			#returnarray[counter].append(element[2])
+			print "dont element 2"	
+			returnarray[counter].append(self.Calculator.convertPowerToRange(float(element[3])))
+			print "dont element 3"
+			print "done array  %s" % returnarray
+			counter = counter + 1
 
-		return Sniffer
+		return returnarray
 		
 		
 
@@ -113,16 +126,22 @@ class server:
 	
 	
 		except:
-			test.stopServer()
+			Decrypterserver.stopServer()
 			raise
 
 
 
 if __name__ == "__main__":
 	Server = server(4000000, 30)
-	test =  Server.parseSnifferToArray(["sniffer1,08:00:27:18:15:a0,2016-05-20 14:33:18,15"])
-	print test
-	Server.parseArrayToDatabase(test)
-	#Server.setLocations()
-
+	try:
+		test =  Server.parseSnifferToArray(["sniffer1;08:00:27:18:15:a0;2016-05-20 14:33:18;15"])
+		print test
+		Server.parseArrayToDatabase(test)
+		Server.setLocations()
+	except Exception as x:		
+		exc_type, exc_obj, exc_tb = sys.exc_info()
+		fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+		print(exc_type, fname, exc_tb.tb_lineno)
+		Server.Decrypterserver.stopServer()
+		raise
 	
