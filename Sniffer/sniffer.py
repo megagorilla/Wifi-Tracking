@@ -28,14 +28,14 @@ class sniffer(threading.Thread):
 		tosend = self.myPubkeyStr + ":name=" + self.name
 		self.sock.sendall(tosend)
 		isnotlast = True
+		received = ""
 		while isnotlast:
-			string =  self.sock.recv(2048)
-			print string
-			if "LAST" in string:
-				string = string.split(";")
-				string = string[0]
+			received = received + self.sock.recv(2048)
+			if "LAST" in received:
 				isnotlast = False
-			self.whitelist.append(string)
+		received = received.replace(";LAST","")
+		self.whitelist = received.split(";")
+		print"\n\nWHITELIST:\n"
 		print self.whitelist
 				
 		
@@ -179,6 +179,7 @@ class sniffer(threading.Thread):
 				while 1:
 					if ((location == -1) or (self.stations[location].getlts() not in lts)) and (self.__hash(Mac) in self.whitelist):
 						tosend = self.__encrypt(self.name+";"+self.__hash(Mac)+";"+lts+";"+power)
+						print "SENDING" + self.name+";"+self.__hash(Mac)+";"+lts+";"+power
 						self.sock.sendall(tosend)
 						string =  self.sock.recv(2048)
 						if ("OK" in string) or (checkCouter is 3):
@@ -200,6 +201,8 @@ class sniffer(threading.Thread):
 		if __name__ == "__main__":
 			for station in self.stations:
 				station.display()
+			print"\n\nWHITELIST:\n"
+			print self.whitelist
 
 def runCommand(str):
 		try:

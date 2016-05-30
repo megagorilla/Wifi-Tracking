@@ -5,4 +5,3 @@ CREATE TABLE IF NOT EXISTS `tracking`.`Sniffers` (
   `Y` DOUBLE NULL,
   `Z` DOUBLE NULL,
   PRIMARY KEY (`ID`))
-ENGINE = InnoDB

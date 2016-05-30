@@ -33,7 +33,7 @@ class databaseserver:
 		return self.cur.fetchall()
 
 	def getmachash(self):
-		self.cur.excute("SELECT MacHash FROM Users")
+		self.cur.execute("SELECT MacHash FROM Users")
 		return self.cur.fetchall()
 	
 	def setLocations(self, userid, x, y, z = None ):
@@ -55,7 +55,11 @@ class databaseserver:
 				self.db.commit()
 				
 	def cleanDB(self):
-		self.cur.execute("DELETE  * FROM Ranges, Locations  WHERE Time > DATE_SUB(NOW(), INTERVAL "+ self.timecleanup +" MINUTES) ")
+		query = "DELETE FROM Locations  WHERE Time > DATE_SUB(NOW(), INTERVAL "+ str(self.timecleanup) +" MINUTE)"
+		self.cur.execute(query)
+		self.db.commit()
+		query = "DELETE FROM Ranges WHERE Time > DATE_SUB(NOW(), INTERVAL "+ str(self.timecleanup) +" MINUTE)"
+		self.cur.execute(query)
 		self.db.commit()
 		
 	def getIDs(self):
@@ -106,18 +110,20 @@ class databaseserver:
 				self.cur.execute("UPDATE Locations SET `NAME`="+ name +", `X`="+ str(x) +", `Y`="+ str(y) +", `Z`= "+ str(z) +", WHERE `ID`=" + str(id))
 				self.db.commit()
 
-	def setRanges(self, userid, sniffersid, time, ranges ):
+	def setRanges(self, sniffersid, userid, time, ranges ):
 		print userid, sniffersid, time, ranges
 		result = self.cur.execute("SELECT * FROM Ranges WHERE Users_ID = "+ str(userid)+" AND Sniffers_ID = "+ str(sniffersid))
 		result = self.cur.fetchall()
 		print "so far so good"
 		if len(result) is 0:
 			print "result is 0"
-			self.cur.execute(" INSERT INTO Ranges(`Users_ID`, `Sniffers_ID`, Ranges.Range, `Time`) VALUES("+ str(userid) +", "+ str(sniffersid) +", "+ str(ranges) +", "+ time)
+			query = "INSERT INTO Ranges(`Users_ID`, `Sniffers_ID`, Ranges.Range, `Time`) VALUES("+ str(userid) +", "+ str(sniffersid) +", "+ str(ranges) +", '"+ time + "')"
+			self.cur.execute(query)
 			self.db.commit()
 		else:
 			print "result is not 0"
-			self.cur.execute("UPDATE Ranges SET `Users_ID`="+ str(userid) +", `Sniffers_ID`="+ str(sniffersid) +", Ranges.Range="+ str(ranges) +", `Time`="+ time +" WHERE `Users_ID`=" + str(userid) +" AND Sniffers_ID = "+ str(sniffersid))
+			query = "UPDATE Ranges SET Ranges.Range="+ str(ranges) +", Time='"+ time +"' WHERE Users_ID=" + str(userid) +" AND Sniffers_ID="+ str(sniffersid)
+			self.cur.execute(query)
 			self.db.commit() 
 
 
@@ -129,10 +135,6 @@ class databaseserver:
 		self.cur.execute("SELECT `ID` FROM Sniffers WHERE NAME = '" + str(name)+"'")
 		return self.cur.fetchall()
 		
-	
-	
-	
-	
 			
 		
 if __name__ == "__main__":

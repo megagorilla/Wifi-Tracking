@@ -12,4 +12,3 @@ CREATE TABLE IF NOT EXISTS `tracking`.`Locations` (
     REFERENCES `tracking`.`Users` (`ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
-ENGINE = InnoDB

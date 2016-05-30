@@ -13,4 +13,4 @@ CREATE TABLE IF NOT EXISTS `tracking`.`Ranges` (
     CONSTRAINT `fk_Ranges_Sniffers1` FOREIGN KEY (`Sniffers_ID`)
         REFERENCES `tracking`.`Sniffers` (`ID`)
         ON DELETE NO ACTION ON UPDATE NO ACTION
-)  ENGINE=INNODB
+)

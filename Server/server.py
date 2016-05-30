@@ -2,7 +2,7 @@ from calculator import calculator
 from databaseserver import databaseserver
 from decrypter import Decrypter
 from datetime import datetime
-import sys, os
+import sys, os, time
 
 
 class server:
@@ -23,7 +23,7 @@ class server:
 
 	def setLocations(self):
 		ALLRadiiTuple =  self.Databaseserver.getinfoforcalculatorquickversion()
-		ALLRadii = self.converttuplestoarray(ALLRadiiTuple)
+		ALLRadii = self.convertTuplesToArray(ALLRadiiTuple)
 		lastforradiiid = 0
 		counter = 0
 		splitpoints = []
@@ -70,78 +70,56 @@ class server:
 			counter = counter + 1
 
 	def runcalculator(self):
-		while True:
-			self.setLocations()
-			self.Databaseserver.cleanDB()
+		self.setLocations()
+		#self.Databaseserver.cleanDB()
 
 	def addTowWitelist(self):
 		for machash in self.Databaseserver.getmachash():
-			self.Decrypter.addWhitelist(machash)
+			self.Decrypterserver.addWhitelist(machash[0])
 	
-	def parseArrayToDatabase(self, Array):
-		for element in Array:
-			self.Databaseserver.setRanges(element[1], element[0], element[2], element[3])	
-		
-					
-		
 	def parseSnifferToArray(self, Sniffer):
-		counter = 0
 		returnarray = []
 		for element in Sniffer:
-			#print split
-			#print element
 			element = element.split(';')
-			#print "split  %s" % element
-			#print element[0]
-			element0 = self.Databaseserver.getSnifferIDFromName(element[0])
-			returnarray.append([])
-			returnarray[counter].append(element0[0][0])
-			print "dont element 0"
-			element1 = self.Databaseserver.getIDFromMac(element[1])
-			returnarray[counter].append(element1[0][0])
-			print "dont element 1"
-			returnarray[counter].append(datetime.strptime(element[2], '%Y-%m-%d %H:%M:%S'))
-			#returnarray[counter].append(element[2])
-			print "dont element 2"	
-			returnarray[counter].append(self.Calculator.convertPowerToRange(float(element[3])))
-			print "dont element 3"
-			print "done array  %s" % returnarray
-			counter = counter + 1
-
-		return returnarray
-		
+			print element
+			snifferID = self.Databaseserver.getSnifferIDFromName(element[0])[0][0]
+			userID = self.Databaseserver.getIDFromMac(element[1])[0][0]
+			lts = element[2]
+			power = self.Calculator.convertPowerToRange(float(element[3]))
+			power = abs(power) * 10
+			self.Databaseserver.setRanges(snifferID,userID,lts,power)
 		
 
 	def startserver(self):
-		self.Decrypterserver.addtowhitelist()
-		try:
-			while self.Decrypterserver.serverRunning():
-				time.sleep(1)
-				'''
-				#if test.server.hasReceived():
-					#print "NEW MESSAGES"
-				'''
-				self.parseArrayToDatabase(self.parseSnifferToArray(self.Decrypterserver.parseAll()))
-				self.runcalculator()
+		self.addTowWitelist()
+		#try:
+		while self.Decrypterserver.serverRunning():
+			time.sleep(1)
+			self.parseSnifferToArray(self.Decrypterserver.parseAll())
+			self.runcalculator()
+			print "still rummming"
 	
 	
-		except:
-			Decrypterserver.stopServer()
-			raise
+		'''except Exception as x:		
+			exc_type, exc_obj, exc_tb = sys.exc_info()
+			fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+			print(exc_type, fname, exc_tb.tb_lineno)
+			self.Decrypterserver.stopServer()
+			raise'''
 
 
 
 if __name__ == "__main__":
 	Server = server(4000000, 30)
-	try:
-		test =  Server.parseSnifferToArray(["sniffer1;08:00:27:18:15:a0;2016-05-20 14:33:18;15"])
-		print test
-		Server.parseArrayToDatabase(test)
-		Server.setLocations()
-	except Exception as x:		
+	#try:
+	'''test =  Server.parseSnifferToArray(["sniff#1;91abea155fdf14c519923f0c512814e373d997c037aea13c64f89c450796c95d;2016-05-20 14:33:18;20"])
+	print test
+	Server.setLocations()'''
+	Server.startserver()
+	'''except Exception as x:		
 		exc_type, exc_obj, exc_tb = sys.exc_info()
 		fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 		print(exc_type, fname, exc_tb.tb_lineno)
 		Server.Decrypterserver.stopServer()
-		raise
+		raise'''
 	

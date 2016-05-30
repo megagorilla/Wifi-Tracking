@@ -62,9 +62,9 @@ class SocketServer(threading.Thread):
 				
 			counter = 1
 			for mac in self.whitelist:
-				tosend = mac
+				tosend = mac+";"
 				if len(self.whitelist) == counter:
-					tosend += ";LAST"
+					tosend += "LAST"
 				counter +=1
 				print tosend
 				conn.send(tosend)
@@ -75,7 +75,6 @@ class SocketServer(threading.Thread):
 				#Receiving from client
 				data = conn.recv(self.RECV_BUFFER)
 				reply = 'OK...' + data
-				#print reply
 				if not data: 
 					break
 		
@@ -127,7 +126,7 @@ class SocketServer(threading.Thread):
 				print "new connection accepted"
 				self.CONNECTION_LIST.append(conn)
 				self.ADDRESS_LIST.append(addr)
-				self.CONN_NAMES.append("sniffer#" + str(len(self.CONN_NAMES)))
+				self.CONN_NAMES.append("sniff#" + str(len(self.CONN_NAMES)))
 				print 'Connected with ' + addr[0] + ':' + str(addr[1])
 			
 				#start new thread takes 1st argument as a function name to be run, second is the tuple of arguments to the function.
