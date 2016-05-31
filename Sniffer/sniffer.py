@@ -1,8 +1,11 @@
-import os, thread, time, subprocess,hashlib,sys, threading, socket
+import os, thread, time, subprocess,hashlib,sys, threading, socket,re
 from station import Station
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.Hash import SHA
+from subprocess import Popen, PIPE
+from threading import Thread
+from Queue import Queue, Empty
 
 class sniffer(threading.Thread):
 	
@@ -37,6 +40,9 @@ class sniffer(threading.Thread):
 		self.whitelist = received.split(";")
 		print"\n\nWHITELIST:\n"
 		print self.whitelist
+		self.io_q = Queue()
+		self.errorWords = ["BSSID", "WPA2", "WPA", "Elapsed:", "[J[1;1H" , "[0m[2J[?25l[2J", "[1;1H", "OPN", "WEP","\x1b[J\x1b[?25h"]
+
 				
 		
 	def setDevice(self,device):
@@ -124,37 +130,83 @@ class sniffer(threading.Thread):
 			if self.isAlive():
 				raise
 
+	def stream_watcher(self,identifier, stream):
+		for line in stream:
+		    self.io_q.put((identifier, line))
+		if not stream.closed:
+		    stream.close()
+
 	def __startDump(self):
 		print "airodump is starting"
-		try:
-			self.runCommand("sudo rm sniffdump*")
-		except:
-			print "sniffdump file didn't exist"
-		finally:
-			self.runCommand("sudo gnome-terminal -e 'airodump-ng " + self.device + 
-			" --channel " + str(self.channel) + " --output-format csv --write sniffdump'")
-			while self.running:
-				try:
-					f = open("sniffdump-01.csv","r")
-					content = f.read()
-					f.close()
-					self.__processFile(content)
-				except KeyboardInterrupt:
-					break
-				except IOError as inst:
-					if inst.args[0] is 2:
-						print inst.args
-						print "no such file"
-					else:
-						print inst.args
-						raise
-				finally:
-					time.sleep(1)
+		self.proc = Popen(["airodump-ng", self.device, "--channel", str(self.channel)], stdout=PIPE, stderr=PIPE)
+		Thread(target=self.stream_watcher, name='stdout-watcher', args=('STDERR', self.proc.stderr)).start()
+		Thread(target=self.queueChecker, name='queueChecker').start()
+		print"\n\nWHITELIST:\n"
+		print self.whitelist
+		while self.running:
+			time.sleep(1)
+			print "still rumming"
+		self.proc.kill()
 				
 	def __encrypt(self,string):
 		cipher = PKCS1_OAEP.new(self.publicKey)
 		return cipher.encrypt(string)
 		
+	def __procesLine(self,string):
+		containwords = False
+		if string.strip() == "":
+			containwords = True
+		for errorWord in self.errorWords:
+			if errorWord in string:
+				containwords = True
+		if containwords == False:	
+			string = " ".join(string.split())
+			splitted = string.split(" ")
+			if "not" in splitted[0]:
+				Mac = splitted[2]
+				power = splitted[3]
+			else:
+				Mac = splitted[1]
+				power = splitted[2]
+			lts = time.strftime('%Y-%m-%d %H:%M:%S')	
+			location = self.__find_station(Mac)
+			if power in "-1":
+				return
+			#print "MAC: " + Mac + " LTS: " + lts + " POWER: " + power
+			checkCounter = 0
+			while 1:
+				if (self.__hash(Mac) in self.whitelist):
+					tosend = self.__encrypt(self.name+";"+self.__hash(Mac)+";"+lts+";"+power)
+					print "SENDING" + self.name+";"+self.__hash(Mac)+";"+lts+";"+power
+					self.sock.sendall(tosend)
+					string =  self.sock.recv(2048)
+					if ("OK" in string) or (checkCouter is 3):
+						break
+					checkCounter += 1
+				else:
+					break
+			
+			if location == -1:
+				stat = Station(self.__hash(Mac),lts,power)
+				self.stations.append(stat)
+			else:
+				self.stations[location].setlts(lts)
+				self.stations[location].setpower(power)
+	
+	def queueChecker(self):
+		time.sleep(3)
+		while 1:
+		    try:
+		        # Block for 1 second.
+		        item = self.io_q.get(True, 1)
+		    except Empty:
+		        # No output in either streams for a second. Are we done?
+		        if self.proc.poll() is not None:
+		            break
+		    else:
+		        identifier, line = item
+		        self.__procesLine(line)
+	
 	def __processFile(self,content):
 		if __name__ == "__main__":
 			os.system("clear")
@@ -226,7 +278,7 @@ if __name__ == "__main__":
 		wlan = sys.argv[1]
 
 	device = ""
-	sniff = sniffer(channel = 5)
+	sniff = sniffer(channel = 52)
 	mons = sniff.getMons()
 	print "Mons: " + str(mons)
 	wlans = sniff.getWlans()
