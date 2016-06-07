@@ -5,14 +5,10 @@ import matplotlib.pyplot as plt
 
 
 class calculator:
-	def __init__(self):
-		self.beginpoint3D = [0.0, 0.0, 0.0]
-		self.beginpoint2D = [0.0, 0.0]
-			
 
 	def residuals2D(self, point, data):
-		summ = sum([square(( square(p[0] - point[0]) + square(p[1] - point[1]) ) - square(p[2])) for p in data])
-		return [summ,summ]
+		summ = [square(( square(p[0] - point[0]) + square(p[1] - point[1]) ) - square(p[2])) for p in data]
+		return summ
 	
 	def residuals3D(self, point, data):
 		summ = sum([square(( square(p[0] - point[0]) + square(p[1] - point[1]) + square(p[2] - point[2]) ) - square(p[3])) for p in data])
@@ -34,7 +30,7 @@ class calculator:
 				circ2 = plt.Circle((p[0], p[1]), radius=0.01, color='r', alpha=1)
 				ax.add_patch(circ)
 				ax.add_patch(circ2) 
-		circ = plt.Circle((point[0][0], point[0][1]), radius=0.05, color='g', alpha=0.5)
+		circ = plt.Circle((point[0][0], point[0][1]), radius=10, color='g', alpha=0.5)
 		ax.add_patch(circ)
 		ax.autoscale()
 		plt.show()		
@@ -44,6 +40,7 @@ class calculator:
 		data = []
 		for dat in Data:
 			data.append(list(dat))
+		startPoints = self.calcStartPoints(Data)
 		is3d = False
 		for dat in data:
 			if len(dat) == 4:
@@ -63,10 +60,10 @@ class calculator:
 					dlist.append(tuple(templist))
 				else:
 					dlist.append(dat)
-			return leastsq(self.residuals3D, self.beginpoint3D, args=(dlist))
+			return leastsq(self.residuals3D,startPoints[:2] , args=(dlist))
 		else:
 			#print "is 3d is false"
-			return leastsq(self.residuals2D, self.beginpoint2D, args=(data))
+			return leastsq(self.residuals2D, startPoints, args=(data))
 		
 	def setbeginpoint3D(self, beginpoint):
 		self.beginpoint3D = beginpoint
@@ -77,29 +74,24 @@ class calculator:
 	def convertPowerToRange(self, pwr):
 		return pwr
 		
-	
+	def calcStartPoints(self,points):
+		xArr = []
+		yArr = []
+		zArr = []
+		for point in points:
+			xArr.append(point[0])
+			yArr.append(point[1])
+			zArr.append(point[2])
+		return [max(xArr)/2,max(yArr)/2,max(zArr)/2]
 		
-		
-	
-		
-
 if __name__ == "__main__":
-	points1 = [ (-1.91373, -0.799904, 2.04001), (-0.935453, -0.493735, 0.959304), (0.630964, -0.653075, 0.728477), (0.310857, -0.018258, 0.301885), (0.0431084, 1.25321, 1.19012) ]
-	points3 = [ (10.0,10.0, 0, 5.0) , (20.0,20.0,5.0), (20.0,10.0,5.0)]
-	points2 = [[10.0, 10.0, 0.00000, 5.0], [20.0, 20.0, 0.0, 5.0], [20.0, 10.0, 5.0]]
-
-
-	
+	points4 = [[236,404,0,37*4],[267,740,0,60*4],[0,194,0,46*4]]
 
 	obj = calculator()
 
-	obj.plot(obj.calculatepoint(points1), points1)
-	#print "tuple"
-	print obj.calculatepoint(points1)
-	#print "array"
-	print obj.calculatepoint(points2)
+	obj.plot(obj.calculatepoint(points4), points4)
 	while 1:
-		print "still rummimg"
+		print "still runnimg"
 		time.sleep(3)
 	
 
