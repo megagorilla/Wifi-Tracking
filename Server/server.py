@@ -13,17 +13,21 @@ class server:
 		self.Databaseserver =  databaseserver(timedelay, timecleanup)
 		self.Calculator = calculator()
 		self.Decrypterserver = Decrypter()
-		self.Databaseserver.run_sql_file("../SQL/createUsers.sql", self.Databaseserver.db)
-		self.Databaseserver.run_sql_file("../SQL/createSniffers.sql", self.Databaseserver.db)
-		self.Databaseserver.run_sql_file("../SQL/createRanges.sql", self.Databaseserver.db)
-		self.Databaseserver.run_sql_file("../SQL/createLocations.sql", self.Databaseserver.db)
-
+		self.Databaseserver.run_sql_file("../SQL/createUsers.sql")
+		self.Databaseserver.run_sql_file("../SQL/createSniffers.sql")
+		self.Databaseserver.run_sql_file("../SQL/createRanges.sql")
+		self.Databaseserver.run_sql_file("../SQL/createLocations.sql")
+	'''
+	converts lists with tuples as elements into 2d lists
+	'''
 	def convertTuplesToArray(self, array):
 		arraywitharray = []
 		for tupleinarray in array:
 			arraywitharray.append(list(tupleinarray))
 		return arraywitharray
-
+	'''
+	Get the raddi of every avalabile user with every avalible sniffer and then uses that too calculate either a 2d or 3d position and to parse that towards the database
+	'''
 	def setLocations(self):
 		ALLRadiiTuple =  self.Databaseserver.getinfoforcalculatorquickversion()
 		ALLRadii = self.convertTuplesToArray(ALLRadiiTuple)
@@ -71,7 +75,9 @@ class server:
 					else:
 						self.Databaseserver.setLocations(databaseid, calculatepoint[0][0], calculatepoint[0][1])
 			counter = counter + 1
-
+	'''
+	Get the raddi of every avalabile user with every avalible sniffer and then uses that too calculate either a 2d or 3d position and to parse that towards the database
+	'''
 	def runcalculator(self):
 		self.setLocations()
 		#self.Databaseserver.cleanDB()
