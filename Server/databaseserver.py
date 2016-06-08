@@ -37,9 +37,9 @@ class databaseserver:
 		for row in self.cur.fetchall():
 			#print row[0]
 			#print self.cur.fetchall()
-			toreturn = self.cur.fetchall()
-			self.closeconnection()
-			return toreturn
+		toreturn = self.cur.fetchall()
+		self.closeconnection()
+		return toreturn
 			
 	def getsniffer(self, id):
 		self.openconnection()
@@ -203,7 +203,7 @@ if __name__ == "__main__":
 	#print obj.getusers()
 	#print obj.getinfoforcalculatorquickversion()
 	obj.setLocations(1, 6, 5)
-	print obj.getinfoforcalculatorquickversion()
+	print obj.getusers()
 	
 	
 		
