@@ -9,7 +9,7 @@ from Queue import Queue, Empty
 
 class sniffer(threading.Thread):
 	
-	def __init__(self, device = "", channel = None):
+	def __init__(self, device = "", channel = None, adress = "localhost", port = 8888):
 		threading.Thread.__init__(self)
 		self.stations = []
 		self.whitelist = []
@@ -17,7 +17,7 @@ class sniffer(threading.Thread):
 		self.channel = channel
 		self.running = True
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		server_address = ('localhost', 8888)
+		server_address = (adress, port)
 		print >>sys.stderr, 'connecting to %s port %s' % server_address
 		self.sock.connect(server_address)
 		string =  self.sock.recv(2048)

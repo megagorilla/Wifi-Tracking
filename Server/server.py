@@ -95,7 +95,7 @@ class server:
 			userID = self.Databaseserver.getIDFromMac(element[1])[0][0]
 			lts = element[2]
 			power = self.Calculator.convertPowerToRange(float(element[3]))
-			power = abs(power) * 10
+			power = abs(power) * 4
 			self.Databaseserver.setRanges(snifferID,userID,lts,power)
 		
 
