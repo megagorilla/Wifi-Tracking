@@ -4,14 +4,25 @@ class databaseserver:
 	def __init__(self, timedelay, timecleanup):
 		self.timedelay = timedelay
 		self.timecleanup = timecleanup
+		'''
+		self.db = MySQLdb.connect(host="localhost",    # your host, usually localhost
+							 user="root",         # your username
+							 passwd="Biertaart",  # your password
+							 db="tracking")        # name of the data base
 
+		
+		#create cursor object that will allow excution of queries
+		self.cur = self.db.cursor()
+		'''
 	def openconnection(self):
+		
+		
 		self.db = MySQLdb.connect(host="localhost",    # your host, usually localhost
 						 user="root",         # your username
 						 passwd="Biertaart",  # your password
 						 db="tracking")        # name of the data base
 
-		
+	
 		#create cursor object that will allow excution of queries
 		self.cur = self.db.cursor()
 
@@ -19,13 +30,13 @@ class databaseserver:
 		self.cur.close()
 		self.db.close()
 	
-	def run_sql_file(self, filename, connection):
+	def run_sql_file(self, filename):
 		self.openconnection()
 		file = open(filename, 'r')
 		sql = s = " ".join(file.readlines())
-		cursor = connection.cursor()
-		cursor.execute(sql)
-		connection.commit()
+		#cursor = connection.cursor()
+		self.cur.execute(sql)
+		self.db.commit()
 		self.closeconnection()
 	
 	def getRadii(self, id):	
@@ -187,9 +198,11 @@ class databaseserver:
 		
 if __name__ == "__main__":
 	obj = databaseserver(400000, 20)
+	obj.run_sql_file("../SQL/createSniffers.sql")
 	#print obj.getusers()
-	print obj.getinfoforcalculatorquickversion()
+	#print obj.getinfoforcalculatorquickversion()
 	obj.setLocations(1, 6, 5)
+	print obj.getinfoforcalculatorquickversion()
 	
 	
 		
