@@ -79,18 +79,6 @@ class calculator:
 			return leastsq(self.residuals2D, startPoints, args=(data))
 	
 	'''
-	setbeginpoint3D is a  method that sets the 2d beginpoint 
-	'''	
-	def setbeginpoint3D(self, beginpoint):
-		self.beginpoint3D = beginpoint
-		
-	'''
-	setbeginpoint2D is a  method that sets the 2d beginpoint 
-	'''
-	def setbeginpoint2D(self, beginpoint):
-		self.beginpoint2D = beginpoint
-		
-	'''
 	convertPowerToRange is a yet to be written method that converts the pwr of a given wifi package to distance in centimeters
 	'''
 	def convertPowerToRange(self, pwr):
