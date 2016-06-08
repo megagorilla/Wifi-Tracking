@@ -5,20 +5,30 @@ import matplotlib.pyplot as plt
 
 
 class calculator:
-
+	
+	'''
+	residuals2D is a method that details the algorhitm on how calculate a 2d position
+	'''
 	def residuals2D(self, point, data):
 		summ = [square(( square(p[0] - point[0]) + square(p[1] - point[1]) ) - square(p[2])) for p in data]
 		return summ
 	
+	'''
+	residuals3D is a method that details the algorhitm on how calculate a 3d position
+	'''
 	def residuals3D(self, point, data):
 		summ = sum([square(( square(p[0] - point[0]) + square(p[1] - point[1]) + square(p[2] - point[2]) ) - square(p[3])) for p in data])
 		return [summ,summ,summ]
 		
-		
+	'''
+	plot is a method that calls __plot on a seperate thread
+	'''	
 	def plot(self, point, data):
 		thread.start_new_thread(self.__plot, (point, data) )	
 		
-	
+	'''
+	__plot is a private method that opens a graphwindow filled with the raddii and the calculated location
+	'''	
 	def __plot(self, point, data):
 		fig = plt.figure()
 		ax = fig.add_subplot(1, 1, 1)
@@ -35,7 +45,10 @@ class calculator:
 		ax.autoscale()
 		plt.show()		
 		
-	
+	'''
+	calculatepoint is a method that calculates the location of a person based on a given 2d array, based on that 2d array it calculates a beginning point. 
+	With that beginning point it either calculatus a 2d or a 3d location
+	'''	
 	def calculatepoint(self,Data):
 		data = []
 		for dat in Data:
@@ -64,16 +77,35 @@ class calculator:
 		else:
 			#print "is 3d is false"
 			return leastsq(self.residuals2D, startPoints, args=(data))
-		
+	
+	'''
+	setbeginpoint3D is a  method that sets the 2d beginpoint 
+	'''	
 	def setbeginpoint3D(self, beginpoint):
 		self.beginpoint3D = beginpoint
-	
+		
+	'''
+	setbeginpoint2D is a  method that sets the 2d beginpoint 
+	'''
 	def setbeginpoint2D(self, beginpoint):
 		self.beginpoint2D = beginpoint
-
+		
+	'''
+	convertPowerToRange is a yet to be written method that converts the pwr of a given wifi package to distance in centimeters
+	'''
 	def convertPowerToRange(self, pwr):
 		return pwr
 		
+	'''
+	calaculateavarage is a method that calculates the avarages of a given array
+	'''		
+	def calaculateavarage(self, array):
+		return sum(array)/len(array)
+		
+		
+	'''
+	calcStartPoints is a method that calculates the starting points based of a 2d array given in the parameter, by taking the avarage of all the points in the 2d array
+	'''	
 	def calcStartPoints(self,points):
 		xArr = []
 		yArr = []
@@ -82,8 +114,12 @@ class calculator:
 			xArr.append(point[0])
 			yArr.append(point[1])
 			zArr.append(point[2])
-		return [max(xArr)/2,max(yArr)/2,max(zArr)/2]
-		
+		return [self.calaculateavarage(xArr),self.calaculateavarage(yArr),self.calaculateavarage(zArr)]
+
+
+'''
+The main mostly used for testing purposes
+'''		
 if __name__ == "__main__":
 	points4 = [[236,404,0,37*4],[267,740,0,60*4],[0,194,0,46*4]]
 
