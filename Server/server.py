@@ -6,6 +6,9 @@ import sys, os, time
 
 
 class server:
+	'''
+	The constructor of the server class creates a localdatabase if one doesnt already exists and sets the timedelay for when information in the database is not legit anymore and sets an timer for when the database needs to be cleaned
+	'''
 	def __init__(self, timedelay, timecleanup):	
 		self.Databaseserver =  databaseserver(timedelay, timecleanup)
 		self.Calculator = calculator()
@@ -109,6 +112,9 @@ class server:
 
 
 
+'''
+The main mostly used for testing purposes
+'''
 if __name__ == "__main__":
 	Server = server(4000000, 30)
 	#try:
