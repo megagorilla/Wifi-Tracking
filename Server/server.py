@@ -76,16 +76,20 @@ class server:
 						self.Databaseserver.setLocations(databaseid, calculatepoint[0][0], calculatepoint[0][1])
 			counter = counter + 1
 	'''
-	Get the raddi of every avalabile user with every avalible sniffer and then uses that too calculate either a 2d or 3d position and to parse that towards the database
+	runs the setlocations method
 	'''
 	def runcalculator(self):
 		self.setLocations()
 		#self.Databaseserver.cleanDB()
-
+	'''
+	adds machashes to the snifferwhitelist
+	'''
 	def addTowWitelist(self):
 		for machash in self.Databaseserver.getmachash():
 			self.Decrypterserver.addWhitelist(machash[0])
-	
+	'''
+	Parse the information gained from the sniffer to an array and then that gets parsed into the database
+	'''
 	def parseSnifferToArray(self, Sniffer):
 		returnarray = []
 		for element in Sniffer:
@@ -98,7 +102,9 @@ class server:
 			power = abs(power) * 10
 			self.Databaseserver.setRanges(snifferID,userID,lts,power)
 		
-
+	'''
+	adds machashes to whitelist and then continuesly adds new snifferinformation and locations to the database
+	'''
 	def startserver(self):
 		self.addTowWitelist()
 		#try:
