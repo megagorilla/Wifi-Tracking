@@ -4,16 +4,7 @@ class databaseserver:
 	def __init__(self, timedelay, timecleanup):
 		self.timedelay = timedelay
 		self.timecleanup = timecleanup
-		'''
-		self.db = MySQLdb.connect(host="localhost",    # your host, usually localhost
-							 user="root",         # your username
-							 passwd="Biertaart",  # your password
-							 db="tracking")        # name of the data base
-
 		
-		#create cursor object that will allow excution of queries
-		self.cur = self.db.cursor()
-		'''
 	def openconnection(self):
 		
 		
