@@ -109,7 +109,6 @@ class sniffer(threading.Thread):
 	def init_sniffers(self):
 		wlans = self.getWlans()
 		print wlans
-		#wlans.remove("wlan3")
 		print "these devices wil init: " + str(wlans)
 		self.runCommand("sudo airmon-ng check kill")
 		for wlan in wlans:
@@ -130,75 +129,92 @@ class sniffer(threading.Thread):
 			if self.isAlive():
 				raise
 
-	def stream_watcher(self,identifier, stream):
-		for line in stream:
-		    self.io_q.put((identifier, line))
-		if not stream.closed:
-		    stream.close()
-
 	def __startDump(self):
-		print "airodump is starting"
-		self.proc = Popen(["airodump-ng", self.device, "--channel", str(self.channel)], stdout=PIPE, stderr=PIPE)
-		Thread(target=self.stream_watcher, name='stdout-watcher', args=('STDERR', self.proc.stderr)).start()
-		Thread(target=self.queueChecker, name='queueChecker').start()
-		print"\n\nWHITELIST:\n"
-		print self.whitelist
-		while self.running:
-			time.sleep(1)
-			print "still rumming"
-		self.proc.kill()
+ 		print "airodump is starting"
+ 		try:
+ 			self.runCommand("sudo rm sniffdump*")
+ 		except:
+ 			print "sniffdump file didn't exist"
+ 		finally:
+ 			self.runCommand("sudo gnome-terminal -e 'airodump-ng " + self.device + 
+ 			" --channel " + str(self.channel) + " --output-format csv --write sniffdump'")
+ 			while self.running:
+ 				try:
+ 					f = open("sniffdump-01.csv","r")
+ 					content = f.read()
+ 					f.close()
+ 					self.__processFile(content)
+ 				except KeyboardInterrupt:
+ 					break
+ 				except IOError as inst:
+ 					if inst.args[0] is 2:
+ 						print inst.args
+ 						print "no such file"
+ 					else:
+ 						print inst.args
+ 						raise
+ 				finally:
+ 					time.sleep(1)
 				
 	def __encrypt(self,string):
 		cipher = PKCS1_OAEP.new(self.publicKey)
 		return cipher.encrypt(string)
 		
-	def __procesLine(self,string):
-		containwords = False
-		if string.strip() == "":
-			containwords = True
-		for errorWord in self.errorWords:
-			if errorWord in string:
-				containwords = True
-		if containwords == False:	
-			string = " ".join(string.split())
-			splitted = string.split(" ")
-			if "not" in splitted[0]:
-				Mac = splitted[2]
-				power = splitted[3]
-			else:
-				Mac = splitted[1]
-				power = splitted[2]
-			lts = time.strftime('%Y-%m-%d %H:%M:%S')	
-			location = self.__find_station(Mac)
-			if power in "-1":
-				return
-			#print "MAC: " + Mac + " LTS: " + lts + " POWER: " + power
-			checkCounter = 0
-			while 1:
-				if (self.__hash(Mac) in self.whitelist):
-					tosend = self.__encrypt(self.name+";"+self.__hash(Mac)+";"+lts+";"+power)
-					print "SENDING" + self.name+";"+self.__hash(Mac)+";"+lts+";"+power
-					self.sock.sendall(tosend)
-					string =  self.sock.recv(2048)
-					if ("OK" in string) or (checkCouter is 3):
-						break
-					checkCounter += 1
-				else:
-					break
-			
-			if location == -1:
-				stat = Station(self.__hash(Mac),lts,power)
-				self.stations.append(stat)
-			else:
-				self.stations[location].setlts(lts)
-				self.stations[location].setpower(power)
+	def __processFile(self,content):
+ 		if __name__ == "__main__":
+ 			os.system("clear")
+ 		head = "Station MAC, First time seen, Last time seen, Power, # packets, BSSID, Probed ESSIDs"
+ 		start = self.__find_str(content,head)
+ 		content = content[start:]
+ 		lines = content.split("\n")
+ 		lines = lines[1:len(lines)-2]
+ 		location = ""
+ 		try:
+ 			for line in lines:
+ 				splitted = line.split(",")
+ 				Mac = splitted[0].strip(' \t\n\r')
+ 				lts = splitted[2].strip(' \t\n\r')
+ 				power = splitted[3].strip(' \t\n\r')
+ 				location = self.__find_station(Mac)
+ 				
+ 				if power in "-1":
+ 					continue
+ 				checkCounter = 0
+  				while 1:
+  					if ((location == -1) or (self.stations[location].getlts() not in lts)) and (self.__hash(Mac) in self.whitelist):
+  						tosend = self.__encrypt(self.name+";"+self.__hash(Mac)+";"+lts+";"+power)
+						print "SENDING" + self.name+";"+self.__hash(Mac)+";"+lts+";"+power
+  						self.sock.sendall(tosend)
+  						string =  self.sock.recv(2048)
+  						if ("OK" in string) or (checkCouter is 3):
+ 							break
+ 						checkCounter += 1
+ 					else:
+ 						break
+ 				
+ 				if location == -1:
+ 					stat = Station(self.__hash(Mac),lts,power)
+ 					self.stations.append(stat)
+ 				else:
+ 					self.stations[location].setlts(lts)
+ 					self.stations[location].setpower(power)
+ 		except IndexError:
+ 			print "Small error in processFile, recovering as fast as possible"
+ 		except KeyboardInterrupt:
+ 			raise
+  		if __name__ == "__main__":
+  			for station in self.stations:
+  				station.display()
+			print"\n\nWHITELIST:\n"
+			print self.whitelist
 	
 	def queueChecker(self):
 		time.sleep(3)
 		while 1:
 		    try:
 		        # Block for 1 second.
-		        item = self.io_q.get(True, 1)
+		        item = self.io_q.get(True, 0.1)	
+		        self.io_q.task_done()
 		    except Empty:
 		        # No output in either streams for a second. Are we done?
 		        if self.proc.poll() is not None:
@@ -206,56 +222,8 @@ class sniffer(threading.Thread):
 		    else:
 		        identifier, line = item
 		        self.__procesLine(line)
+		print "QUEUECHECKER ENDED QUEUECHECKER ENDED QUEUECHECKER ENDED QUEUECHECKER ENDED QUEUECHECKER ENDED"
 	
-	def __processFile(self,content):
-		if __name__ == "__main__":
-			os.system("clear")
-		head = "Station MAC, First time seen, Last time seen, Power, # packets, BSSID, Probed ESSIDs"
-		start = self.__find_str(content,head)
-		content = content[start:]
-		lines = content.split("\n")
-		lines = lines[1:len(lines)-2]
-		location = ""
-		try:
-			for line in lines:
-				splitted = line.split(",")
-				Mac = splitted[0].strip(' \t\n\r')
-				fts = splitted[1].strip(' \t\n\r')
-				lts = splitted[2].strip(' \t\n\r')
-				power = splitted[3].strip(' \t\n\r')
-				location = self.__find_station(Mac)
-				
-				if power in "-1":
-					continue
-				checkCounter = 0
-				while 1:
-					if ((location == -1) or (self.stations[location].getlts() not in lts)) and (self.__hash(Mac) in self.whitelist):
-						tosend = self.__encrypt(self.name+";"+self.__hash(Mac)+";"+lts+";"+power)
-						print "SENDING" + self.name+";"+self.__hash(Mac)+";"+lts+";"+power
-						self.sock.sendall(tosend)
-						string =  self.sock.recv(2048)
-						if ("OK" in string) or (checkCouter is 3):
-							break
-						checkCounter += 1
-					else:
-						break
-				
-				if location == -1:
-					stat = Station(self.__hash(Mac),fts,lts,power)
-					self.stations.append(stat)
-				else:
-					self.stations[location].setlts(lts)
-					self.stations[location].setpower(power)
-		except IndexError:
-			print "Small error in processFile, recovering as fast as possible"
-		except KeyboardInterrupt:
-			raise
-		if __name__ == "__main__":
-			for station in self.stations:
-				station.display()
-			print"\n\nWHITELIST:\n"
-			print self.whitelist
-
 def runCommand(str):
 		try:
 			toReturn = os.popen(str).read()
@@ -264,21 +232,29 @@ def runCommand(str):
 		finally:
 			return toReturn
 
-			
 if __name__ == "__main__":
 	wlan = ""
-	if "wlan" not in sys.argv:
+	print sys.argv
+	if len(sys.argv) == 1 or "wlan" not in sys.argv[1]:
 		while 1:
 			print(runCommand("sudo airmon-ng | grep wlan"))
 			x = raw_input('Which of these devices do you want to use?')
 			if "wlan" in x:
 				wlan = x
 				break
+			else:
+				print "not a correct entry"
 	else:
 		wlan = sys.argv[1]
+		
+	if len(sys.argv) == 3:
+		sniff = sniffer(channel = sys.argv[2])
+	else:
+		x = raw_input('Which channel do you want to sniff?')
+		sniff = sniffer(channel = x)
 
 	device = ""
-	sniff = sniffer(channel = 52)
+	
 	mons = sniff.getMons()
 	print "Mons: " + str(mons)
 	wlans = sniff.getWlans()
@@ -301,12 +277,14 @@ if __name__ == "__main__":
 				sniff.join(1)
 				raise
 			finally:
-				sniff.runCommand("sudo killall airodump-ng")
+				#sniff.runCommand("sudo killall airodump-ng")
 				sniff.runCommand("sudo service network-manager restart")
 				sniff.runCommand("sudo iw dev "+device+" del")
 		else:
 			print device
 			print str(len(device))
 			print "could not initialize"
+			#sniff.runCommand("sudo killall airodump-ng")
+			sniff.runCommand("sudo service network-manager restart")
 	else:
 		print "all devices are in use"
