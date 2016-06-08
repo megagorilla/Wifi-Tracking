@@ -37,20 +37,23 @@ class databaseserver:
 		for row in self.cur.fetchall():
 			#print row[0]
 			#print self.cur.fetchall()
+			toreturn = self.cur.fetchall()
 			self.closeconnection()
-			return self.cur.fetchall()
+			return toreturn
 			
 	def getsniffer(self, id):
 		self.openconnection()
 		self.cur.execute("SELECT * FROM Sniffers WHERE ID = "+ id)
+		toreturn = self.cur.fetchall()
 		self.closeconnection()
-		return self.cur.fetchall()
+		return toreturn
 
 	def getmachash(self):
 		self.openconnection()
 		self.cur.execute("SELECT MacHash FROM Users")
+		toreturn = self.cur.fetchall()
 		self.closeconnection()
-		return self.cur.fetchall()
+		return toreturn
 	
 	def setLocations(self, userid, x, y, z = None ):
 		self.openconnection()
@@ -88,8 +91,9 @@ class databaseserver:
 	def getIDs(self):
 		self.openconnection()
 		self.cur.execute("SELECT ID FROM Users")
+		toreturn = self.cur.fetchall()
 		self.closeconnection()
-		return self.cur.fetchall()
+		return toreturn
 		
 		
 	
@@ -109,26 +113,30 @@ class databaseserver:
 		for row in self.cur.fetchall():
 			if row[2] == None:
 				row[2] = 0
-		self.closeconnection()			
-		return self.cur.fetchall()
+		toreturn = self.cur.fetchall()
+		self.closeconnection()
+		return toreturn
 		
 	def __getinfoforcalculatorquickversion(self):
 		self.openconnection()
 		self.cur.execute("Sniffers.X, Sniffers.Y, Sniffers.Z Ranges.Range FROM Ranges INNER JOIN Sniffers ON Ranges.Sniffers_ID=Sniffers.ID INNER JOIN Sniffers ON Sniffers.ID=Users.ID WHERE Ranges.Time > DATE_SUB(NOW(), INTERVAL "+ self.timedelay +" SECONDS) ")
+		toreturn = self.cur.fetchall()
 		self.closeconnection()
-		return self.cur.fetchall()
+		return toreturn
 		
 	def getinfoforcalculatorquickversion(self):
 		self.openconnection()	
 		self.cur.execute("SELECT Users_ID, X, Y, Z, Ranges.Range FROM Ranges  INNER JOIN Sniffers ON Ranges.Sniffers_ID = Sniffers.ID WHERE Ranges.Time > DATE_SUB(NOW(), INTERVAL "+ str(self.timedelay) +" SECOND) ORDER BY Users_ID")
+		toreturn = self.cur.fetchall()
 		self.closeconnection()
-		return self.cur.fetchall()
+		return toreturn
 	
 	def getusers(self):
 		self.openconnection()
 		self.cur.execute("SELECT * FROM Users")
+		toreturn = self.cur.fetchall()
 		self.closeconnection()
-		return self.cur.fetchall()
+		return toreturn
 
 	def setsniffer(self, id, name,x, y, z = None):
 		self.openconnection()
@@ -176,14 +184,16 @@ class databaseserver:
 	def getIDFromMac(self, machash):
 		self.openconnection()
 		self.cur.execute("SELECT `ID` FROM Users WHERE `MacHash` = '" + str(machash)+"'")
+		toreturn = self.cur.fetchall()
 		self.closeconnection()
-		return self.cur.fetchall()
+		return toreturn
 
 	def getSnifferIDFromName(self, name):
 		self.openconnection()
 		self.cur.execute("SELECT `ID` FROM Sniffers WHERE NAME = '" + str(name)+"'")
+		toreturn = self.cur.fetchall()
 		self.closeconnection()
-		return self.cur.fetchall()
+		return toreturn
 		
 			
 		
