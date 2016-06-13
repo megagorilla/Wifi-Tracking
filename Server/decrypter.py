@@ -6,7 +6,9 @@ from Crypto.Cipher import PKCS1_OAEP
 from sockserver import SocketServer
  
 class Decrypter(object):
- 	
+ 	'''
+	the constructor sets an random variable, privatekey to 2048, sets the publickey, sets the public keystring and sets an socketserver object and starts the socketserver
+	'''
  	def __init__(self):
  		rg = Random.new().read
 		self.privateKey = RSA.generate(2048)
@@ -14,10 +16,14 @@ class Decrypter(object):
 		self.pubkeyStr = self.publicKey.exportKey('PEM')
 		self.server = SocketServer(8888,self.pubkeyStr,self.privateKey)
 		self.server.start()
-	
+	'''
+	adds given variable machash to the socketserver object by calling socketserver object's addwhitelist function
+	'''
 	def serverRunning(self):
 		return self.server.isRunning()
-		
+	'''
+	adds given variable machash to the socketserver object by calling socketserver object's addwhitelist function
+	'''	
 	def addWhitelist(self,MacHash):
 		self.server.addWhitelist(MacHash)
 		
