@@ -49,7 +49,7 @@ class calculator:
 	calculatepoint is a method that calculates the location of a person based on a given 2d array, based on that 2d array it calculates a beginning point. 
 	With that beginning point it either calculatus a 2d or a 3d location
 	'''	
-	def calculatepoint(self,Data):
+	def calculatePoint(self,Data):
 		data = []
 		for dat in Data:
 			data.append(list(dat))
@@ -85,9 +85,9 @@ class calculator:
 		return pwr
 		
 	'''
-	calaculateavarage is a method that calculates the avarages of a given array
+	calaculateAvarage is a method that calculates the avarages of a given array
 	'''		
-	def calaculateavarage(self, array):
+	def calaculateAvarage(self, array):
 		return sum(array)/len(array)
 		
 		
@@ -102,7 +102,7 @@ class calculator:
 			xArr.append(point[0])
 			yArr.append(point[1])
 			zArr.append(point[2])
-		return [self.calaculateavarage(xArr),self.calaculateavarage(yArr),self.calaculateavarage(zArr)]
+		return [self.calaculateAvarage(xArr),self.calaculateAvarage(yArr),self.calaculateAvarage(zArr)]
 
 
 '''
@@ -117,6 +117,3 @@ if __name__ == "__main__":
 	while 1:
 		print "still runnimg"
 		time.sleep(3)
-	
-
-

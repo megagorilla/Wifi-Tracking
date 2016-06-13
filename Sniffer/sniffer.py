@@ -61,6 +61,9 @@ class sniffer(threading.Thread):
 				counter += 1
 		return -1
 
+	'''
+	runs a shell command and returns it's output
+	'''
 	def runCommand(self,str):
 		try:
 			toReturn = os.popen(str).read()
@@ -80,10 +83,15 @@ class sniffer(threading.Thread):
 		        index += 1
 		return -1
 	   
+	'''
+	hashas a string with sha512 hash
+	'''
 	def __hash(self,str):
 		return hashlib.sha512(str).hexdigest()
 	
-	
+	'''
+	returns a list of wifi devices
+	'''
 	def getWlans(self):
 		list = []
 		out = self.runCommand("sudo airmon-ng")
@@ -95,6 +103,9 @@ class sniffer(threading.Thread):
 			out = out[loc+5:]
 		return list
 	
+	'''
+	returns a list of wifi devices which are set in Monitoring mode
+	'''
 	def getMons(self):
 		list = []
 		out = self.runCommand("sudo airmon-ng")
@@ -118,9 +129,15 @@ class sniffer(threading.Thread):
 		self.runCommand("sudo airmon-ng check kill")
 		self.runCommand("sudo airmon-ng start " + wlan)
 	
+	'''
+	stop the sniffer
+	'''
 	def stop(self):
 		self.running = False
 		
+	'''
+	Is called in a new thread when sniffer.start() is called
+	'''
 	def run(self):
 		try:
 			self.__startDump()
@@ -129,6 +146,10 @@ class sniffer(threading.Thread):
 			if self.isAlive():
 				raise
 
+	'''
+	private method, starts Airodump-ng and keeps reading the file that airodump writes.
+
+	'''
 	def __startDump(self):
  		print "airodump is starting"
  		try:
@@ -156,10 +177,18 @@ class sniffer(threading.Thread):
  				finally:
  					time.sleep(1)
 				
+	'''
+	encrypts the given string with the public key and returns encrypted text
+	'''
 	def __encrypt(self,string):
 		cipher = PKCS1_OAEP.new(self.publicKey)
 		return cipher.encrypt(string)
-		
+	
+	'''
+	strips and processes the file that is read by the  __startDump method.
+	sends all the info to the server
+	mac adresses are hased with sha512 hash for privacy reasons
+	'''
 	def __processFile(self,content):
  		if __name__ == "__main__":
  			os.system("clear")
@@ -207,23 +236,10 @@ class sniffer(threading.Thread):
   				station.display()
 			print"\n\nWHITELIST:\n"
 			print self.whitelist
-	
-	def queueChecker(self):
-		time.sleep(3)
-		while 1:
-		    try:
-		        # Block for 1 second.
-		        item = self.io_q.get(True, 0.1)	
-		        self.io_q.task_done()
-		    except Empty:
-		        # No output in either streams for a second. Are we done?
-		        if self.proc.poll() is not None:
-		            break
-		    else:
-		        identifier, line = item
-		        self.__procesLine(line)
-		print "QUEUECHECKER ENDED QUEUECHECKER ENDED QUEUECHECKER ENDED QUEUECHECKER ENDED QUEUECHECKER ENDED"
-	
+
+'''
+runs a shell command and returns it's output
+'''
 def runCommand(str):
 		try:
 			toReturn = os.popen(str).read()
