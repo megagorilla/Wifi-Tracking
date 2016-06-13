@@ -7,7 +7,7 @@ from sockserver import SocketServer
  
 class Decrypter(object):
  	'''
-	the constructor sets an random variable, privatekey to 2048, sets the publickey, sets the public keystring and sets an socketserver object and starts the socketserver
+	Creates a RSA public and private key and creates and starts a sockserver
 	'''
  	def __init__(self):
  		rg = Random.new().read
@@ -16,25 +16,36 @@ class Decrypter(object):
 		self.pubkeyStr = self.publicKey.exportKey('PEM')
 		self.server = SocketServer(8888,self.pubkeyStr,self.privateKey)
 		self.server.start()
+
 	'''
-	adds given variable machash to the socketserver object by calling socketserver object's addwhitelist function
+	returns true is the server is still running
 	'''
 	def serverRunning(self):
 		return self.server.isRunning()
+
 	'''
-	adds given variable machash to the socketserver object by calling socketserver object's addwhitelist function
+	adds a MacHash to the whitelist
 	'''	
 	def addWhitelist(self,MacHash):
 		self.server.addWhitelist(MacHash)
 		
+	'''
+	Broadcasts a message to all the clients
+	'''
 	def broadcast(self,msg):
 		self.server.broadcast(msg)
 		
+	'''
+	Kills the server
+	'''
 	def stopServer(self):
 		pid = os.getpid()
 		os.kill(pid,9)
 		self.server.join()
-		
+	
+	'''
+	Puts the whole buffer in an array and returs that array
+	'''
 	def parseAll(self):
 		toReturn = []
 		while 1:

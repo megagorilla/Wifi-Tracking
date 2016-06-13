@@ -7,7 +7,13 @@ import sys, os, time
 
 class server:
 	'''
-	The constructor of the server class creates a localdatabase if one doesnt already exists and sets the timedelay for when information in the database is not legit anymore and sets an timer for when the database needs to be cleaned
+	Constructor of the server class
+	This creates a new databaseserver object, a new calculator object and a Decrypter object
+	It checks if all of the tables are created in the database
+	args:
+	timedelay: The maximum age in seconds a range can be for usage in the calculator
+	timecleanup: The maximum age of a database entry in the Range table in minutes
+	return: NAN
 	'''
 	def __init__(self, timedelay, timecleanup):	
 		self.Databaseserver =  databaseserver(timedelay, timecleanup)
@@ -17,76 +23,80 @@ class server:
 		self.Databaseserver.run_sql_file("../SQL/createSniffers.sql")
 		self.Databaseserver.run_sql_file("../SQL/createRanges.sql")
 		self.Databaseserver.run_sql_file("../SQL/createLocations.sql")
+
 	'''
-	converts lists with tuples as elements into 2d lists
+	Converts 
 	'''
-	def convertTuplesToArray(self, array):
+	def convertTuplesToArray(self, tple):
 		arraywitharray = []
-		for tupleinarray in array:
+		for tupleinarray in tple:
 			arraywitharray.append(list(tupleinarray))
 		return arraywitharray
+
 	'''
 	Get the raddi of every avalabile user with every avalible sniffer and then uses that too calculate either a 2d or 3d position and to parse that towards the database
 	'''
 	def setLocations(self):
-		ALLRadiiTuple =  self.Databaseserver.getinfoforcalculatorquickversion()
+		ALLRadiiTuple =  self.Databaseserver.getInfoForCalculator()
 		ALLRadii = self.convertTuplesToArray(ALLRadiiTuple)
-		lastforradiiid = 0
+		lastRadiiID = 0
 		counter = 0
-		splitpoints = []
-		splitarray = []
-		calcarray = []
+		splitPoints = []
+		splitArray = []
+		calcArray = []
 		for radii in ALLRadii:
 			if counter == 0:
-				lastforradiiid = radii[0]
-				splitpoints.append(0)
-			if lastforradiiid != radii[0]:
-				databaseid = lastforradiiid
-				lastforradiiid = radii[0]
+				lastRadiiID = radii[0]
+				splitPoints.append(0)
+			if lastRadiiID != radii[0]:
+				dataBaseId = lastRadiiID
+				lastRadiiID = radii[0]
 				radii.pop(0)
-				splitarray = ALLRadii[ splitpoints[-1]: counter]
-				for splitter in splitarray:
+				splitArray = ALLRadii[ splitPoints[-1]: counter]
+				for splitter in splitArray:
 					if splitter[2] is None:
 						splitter.pop(2)
-				splitpoints.append(counter)
+				splitPoints.append(counter)
 				counter = counter + 1				
-				if len(splitarray) > 1:
-					calculatepoint = self.Calculator.calculatepoint(splitarray)
-					if len(calculatepoint[0]) is 3: 
-						self.Databaseserver.setLocations(databaseid, calculatepoint[0][0], calculatepoint[0][1], calculatepoint[0][2])
+				if len(splitArray) > 1:
+					calculatedPoint = self.Calculator.calculatePoint(splitArray)
+					if len(calculatedPoint[0]) is 3: 
+						self.Databaseserver.setLocations(dataBaseId, calculatedPoint[0][0], calculatedPoint[0][1], calculatedPoint[0][2])
 					else:
-						self.Databaseserver.setLocations(databaseid, calculatepoint[0][0], calculatepoint[0][1])
+						self.Databaseserver.setLocations(dataBaseId, calculatedPoint[0][0], calculatedPoint[0][1])
 						
 			else:	
-				lastforradiiid = radii[0]
+				lastRadiiID = radii[0]
 				radii.pop(0)
 				
 			if (counter) == len(ALLRadii):
-				databaseid = lastforradiiid
-				splitarray = ALLRadii[ splitpoints[-1]: counter + 1]
-				splitpoints.append(counter)
-				for splitter in splitarray:
+				dataBaseId = lastRadiiID
+				splitArray = ALLRadii[ splitPoints[-1]: counter + 1]
+				splitPoints.append(counter)
+				for splitter in splitArray:
 					if splitter[2] is None:
 						splitter.pop(2)				
-				if len(splitarray) > 1:
-					calculatepoint = self.Calculator.calculatepoint(splitarray)
-					if len(calculatepoint[0]) is 3: 
-						self.Databaseserver.setLocations(databaseid, calculatepoint[0][0], calculatepoint[0][1], calculatepoint[0][2])
+				if len(splitArray) > 1:
+					calculatedPoint = self.Calculator.calculatedPoint(splitArray)
+					if len(calculatedPoint[0]) is 3: 
+						self.Databaseserver.setLocations(dataBaseId, calculatedPoint[0][0], calculatedPoint[0][1], calculatedPoint[0][2])
 					else:
-						self.Databaseserver.setLocations(databaseid, calculatepoint[0][0], calculatepoint[0][1])
+						self.Databaseserver.setLocations(dataBaseId, calculatedPoint[0][0], calculatedPoint[0][1])
 			counter = counter + 1
 	'''
 	runs the setlocations method
 	'''
-	def runcalculator(self):
+	def runCalculator(self):
 		self.setLocations()
-		#self.Databaseserver.cleanDB()
+		self.Databaseserver.cleanDB()
+		
 	'''
 	adds machashes to the snifferwhitelist
 	'''
-	def addTowWitelist(self):
-		for machash in self.Databaseserver.getmachash():
+	def addToWhitelist(self):
+		for machash in self.Databaseserver.getMacHash():
 			self.Decrypterserver.addWhitelist(machash[0])
+			
 	'''
 	Parse the information gained from the sniffer to an array and then that gets parsed into the database
 	'''
@@ -106,12 +116,12 @@ class server:
 	adds machashes to whitelist and then continuesly adds new snifferinformation and locations to the database
 	'''
 	def startserver(self):
-		self.addTowWitelist()
+		self.addToWhitelist()
 		#try:
 		while self.Decrypterserver.serverRunning():
 			time.sleep(1)
 			self.parseSnifferToArray(self.Decrypterserver.parseAll())
-			self.runcalculator()
+			self.runCalculator()
 			print "still rummming"
 	
 	
