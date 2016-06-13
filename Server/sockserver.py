@@ -5,7 +5,9 @@ from Crypto import Random
 from Crypto.Cipher import PKCS1_OAEP
 
 class SocketServer(threading.Thread):
-
+	'''
+	the constructor sets the port, publickey and the private key and set the the buffer to 131072 bytes
+	'''
 	def __init__(self, port, pubkey,privkey):
 		threading.Thread.__init__(self)
 		self.PORT = port
@@ -20,30 +22,44 @@ class SocketServer(threading.Thread):
 		self.pubkeyStr = pubkey
 		self.privateKey = privkey
 		self.whitelist = []
-
+	'''
+	adds a machash the to the whitelist
+	'''
 	def addWhitelist(self,MacHash):
 		self.whitelist.append(MacHash)
-		
+	'''
+	kills the any functionality of the sockserver
+	'''	
 	def stop(self):
 		self.running = False
 		pid = os.getpid()
 		os.kill(pid,9)
-		
+	'''
+	wether is any functionality is allowed, if functionality is allow then then its running and returns true
+	'''	
 	def isRunning(self):
 		return self.running
-		
+	"""
+	returns the newest recieved message, if none is recieved it closes without reutrning anything
+	"""	
 	def nextReceived(self):
 		if len(self.Received_messages) > 0:
 			return self.Received_messages.pop(0)
 		else:
 			return -1
-			
+	"""
+	returns wheter a message excists
+	"""		
 	def nameExists(self,name):
 		return (name in self.CONN_NAMES)
-		
+	"""
+	returns the amount of recieved messages
+	"""	
 	def hasReceived(self):
 		return len(self.Received_messages) > 0
-		
+	"""
+	sets which machashes can be read in the con and sets the connect object when set it will decrypt information read from the con and append it to recieve message global variable
+	"""	
 	def clientthread(self,conn):
 		try:
 			#Sending message to connected client
@@ -102,12 +118,16 @@ class SocketServer(threading.Thread):
 			self.CONNECTION_LIST.pop(index)
 			self.CONN_PUBKEYS.pop(index)
 			conn.close()
-		
+	"""
+	sends string down to the connection while giving message that it's sending
+	"""	
 	def broadcast(self,string):
 		for conn in self.CONNECTION_LIST:
 			print "Sending to: " + str(conn) + " string: " + string
 			conn.send(string+ "\n")
-	
+	"""
+	starts running con in seperate thread, listens to info coming in and appends incoming information
+	"""
 	def run(self):
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
