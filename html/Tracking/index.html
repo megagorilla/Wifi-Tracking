@@ -3,25 +3,42 @@
 <html>
 <head>
 <link rel="shortcut icon" href="/favicon.ico">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+<script src="jquery.min.js"></script>
 <script>
 function paintDevice(trackeddevice) {
 	ctx.fillStyle = "#FF0000";
 	ctx.beginPath();
-	ctx.arc(trackeddevice.locationx*10,trackeddevice.locationy*10,2,0,2*Math.PI);
+	ctx.arc(trackeddevice.locationx,trackeddevice.locationy,2,0,2*Math.PI);
 	ctx.stroke();
 	ctx.fillStyle = "#FF0000";
 	ctx.font = "20px Arial";
-	ctx.fillText(trackeddevice.name, trackeddevice.locationx*10, trackeddevice.locationy*10);
+	ctx.fillText(trackeddevice.name, trackeddevice.locationx, trackeddevice.locationy);
+}
+function paintDeviceRAND(trackeddevice) {
+	ctx.fillStyle = "#FF0000";
+	ctx.beginPath();
+	x = Math.floor(Math.random() * 450) + 50 
+	y = Math.floor(Math.random() * 250) + 50
+	ctx.arc( x,y,2,0,2*Math.PI);
+	ctx.stroke();
+	ctx.fillStyle = "#FF0000";
+	ctx.font = "20px Arial";
+	ctx.fillText(trackeddevice.name, x, y);
 }
 function paint(json){
 	var obj = JSON.parse(json);
+	console.log(obj);
 	objLength = obj.length;
 	var canvas = document.getElementById("myCanvas");
 	ctx = canvas.getContext("2d");
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	for (i = 0; i < objLength; i++) {
-		paintDevice(obj[i]);
+		if (document.getElementById("DemoCheck").checked){
+			paintDeviceRAND(obj[i]);
+		} else {
+			paintDevice(obj[i]);
+		}
+		
 	}
 }
 setInterval(function(){ 
@@ -35,5 +52,9 @@ setInterval(function(){
 <canvas id="myCanvas" width="500" height="300">
 Your browser does not support the canvas element.
 </canvas>
+<div align="center">
+  <input id="DemoCheck" 	type="checkbox" name="vehicle" value="Bike" > Demo Mode<br>
+</div>
+
 </body>
 </html>
